@@ -1,0 +1,14 @@
+[DEFAULT]
+ApiKey = Here you put your API Key
+
+[USERS]
+myid = 123456
+alexid = 654321
+faid = 135790
+
+[CHATS]
+botchat = 12121212
+
+[PATHS]
+pathTodb = Specify the path to your db file
+pathTolog = Specify the path to your log
