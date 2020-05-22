@@ -1,6 +1,7 @@
 #Extensions#
 *.log
 *.conf
+*.example
 
 #Folders#
 /home/xose/Playground/arousabot/archive
