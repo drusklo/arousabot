@@ -3,8 +3,8 @@ ApiKey = Here you put your API Key
 
 [USERS]
 myid = 123456
-alexid = 654321
-faid = 135790
+onefriend = 654321
+anotherfriend = 135790
 
 [CHATS]
 botchat = 12121212
