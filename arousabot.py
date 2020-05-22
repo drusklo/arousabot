@@ -14,8 +14,8 @@ import getpass
 user = getpass.getuser()
 
 #Define your config file in here 
-#config_file = '/home/'+str(user)+'/Playground/arousabot/arousabot.conf'
-config_file = '/home/'+str(user)+'/python/arousabot/arousabot.conf'
+config_file = '/home/'+str(user)+'/Playground/arousabot/arousabot.conf'
+#config_file = '/home/'+str(user)+'/python/arousabot/arousabot.conf'
 config = configparser.ConfigParser()
 config.read(config_file)
 apiKey = config['DEFAULT']['ApiKey']
