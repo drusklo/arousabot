@@ -9,3 +9,4 @@ archive/arousabot_apikey
 archive/arousabot_exception_test.py
 archive/arousabot_minimal.py
 archive/arousabot.config_server
+arousabot.log
