@@ -9,13 +9,24 @@ import requests
 import json
 import configparser
 import getpass
+from gpiozero import CPUTemperature
+
+#Getting hostname
+host = os.uname()[1]
 
 #Getting username
 user = getpass.getuser()
 
-#Define your config file in here 
-config_file = '/home/'+str(user)+'/Playground/arousabot/arousabot.conf'
-#config_file = '/home/'+str(user)+'/python/arousabot/arousabot.conf'
+#Reading from the current path
+path = __location__ = os.path.realpath(
+    os.path.join(os.getcwd(), os.path.dirname(__file__)))
+
+#Define your config, db and log file here
+config_file = path+'/arousabot.conf'
+pathTodb = path+'/dbId.db'
+pathTolog = path+'/arousabot.log'
+
+#Parsing config file
 config = configparser.ConfigParser()
 config.read(config_file)
 apiKey = config['DEFAULT']['ApiKey']
@@ -23,8 +34,6 @@ botchat = int(config['CHATS']['botchat'])
 myid = int(config['USERS']['myid'])
 alexid = int(config['USERS']['alexid'])
 faid = int(config['USERS']['faid'])
-pathTodb = config['PATHS']['pathTodb']
-pathTolog = config['PATHS']['pathTolog']
 
 #Whitelist
 whitelist=[myid,faid,alexid]
@@ -34,11 +43,12 @@ log_time = datetime.datetime.now()
 
 #Command List
 ip = "/ip"
+temp = "/temp"
 help = "/help"
 hitchhiker1 = "What's the meaning of life?"
 hitchhiker2 = "What is the meaning of life?"
 
-tinydict = {ip,help,hitchhiker1,hitchhiker2}
+tinydict = {ip,temp,help,hitchhiker1,hitchhiker2}
 
 #Getting IP
 get_ip = requests.get('https://ipinfo.io/ip')
@@ -47,22 +57,21 @@ get_ip = requests.get('https://ipinfo.io/ip')
 receive_data="https://api.telegram.org/bot"+str(apiKey)+"/GetUpdates?offset=-1&limit=1"
 
 #Messages
-ip_message='This is your ip: '+get_ip.text.strip('\n')
+ip_message = 'This is your ip: '+get_ip.text.strip('\n')
 
-help_message= "I need somebody"
+help_message = "I need somebody"
 
 hitchhiker_message = "42"
 
-error_message="IP hasn't changed or the command is incorrect"
+error_message = "IP hasn't changed or the command is incorrect"
 
-error_message2="Command not found"
+error_message2 = "Command not found"
 
-error_message3="Trespassers will be shot, survivors will be shot again"
+error_message3 = "Trespassers will be shot, survivors will be shot again"
 
-#Enable verbose mode
-verbose = "true"
+error_message4 = "Unable to provide the requested information"
 
-#Defining Logging function
+#Logging function
 def writeLog():
     logFile = open(pathTolog,'a')
     logFile.write(str(text))
@@ -73,7 +82,7 @@ def writeLog():
     logFile.write(os.linesep)
     logFile.close()
 
-#Defining Read DB function
+#Read DB function
 def readDb():
     global dbFile
     dbFile = open(pathTodb,'r')
@@ -81,15 +90,23 @@ def readDb():
     readlastline = dbFile.readline()
     dbFile.close()
 
-#Defining Write DB function
+#Write DB function
 def writeDb():
     dbFile = open(pathTodb,'w')
     dbFile.write(str(message_id))
     dbFile.close()
-
+'''
+#Reading Temperature Function (Only works in Raspberry Pi)
+def readTemp():
+    cpu = CPUTemperature()
+    temp_message = 'CPU Temperature is: ' + str(cpu.temperature) + 'C'
+'''
 
 #Enable Logging
 logging = "false"
+
+#Enable verbose mode
+verbose = "true"
 
 
 while True:
@@ -123,7 +140,7 @@ while True:
     #Checking if message has been sent
     if int(readlastline) == message_id:
         print("Message has already been sent")
-        time.sleep(3)
+        time.sleep(2)
     #Sending Messages 
         
     #Successful messages
@@ -132,6 +149,19 @@ while True:
         requests.post(bot_chat+ip_message)
         writeLog()
 
+    print(host)
+
+    #Requesting temperature
+    if text == temp and host == 'raspberrypi' and int(readlastline) != message_id and userid in whitelist and chatid == botchat:
+        cpu = CPUTemperature()
+        temp_message = 'CPU Temperature is: ' + str(cpu.temperature) + 'C'
+        requests.post(bot_chat+temp_message)
+        writeLog()
+    
+    #Error temperature
+    if text == temp and host != 'raspberrypi' and int(readlastline) != message_id and userid in whitelist and chatid == botchat:
+        requests.post(bot_chat+error_message4)
+        writeLog()
 
     #Help Command
     if text == help and int(readlastline) != message_id and userid in whitelist and chatid == botchat:
