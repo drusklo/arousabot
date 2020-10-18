@@ -51,13 +51,13 @@ hitchhiker2 = "What is the meaning of life?"
 tinydict = {ip,temp,help,hitchhiker1,hitchhiker2}
 
 #Getting IP
-get_ip = requests.get('https://ipinfo.io/ip')
+#get_ip = requests.get('https://ipinfo.io/ip')
 
 #GET JSON DATA from Telegram API
 receive_data="https://api.telegram.org/bot"+str(apiKey)+"/GetUpdates?offset=-1&limit=1"
 
 #Messages
-ip_message = 'This is your ip: '+get_ip.text.strip('\n')
+#ip_message = 'This is your ip: '+get_ip.text.strip('\n')
 
 help_message = "I need somebody"
 
@@ -146,6 +146,9 @@ while True:
     #Successful messages
     #Requesting a IP
     if text == ip and int(readlastline) != message_id and userid in whitelist and chatid == botchat:
+        #requests.post(bot_chat+ip_message)
+        get_ip = requests.get('https://ipinfo.io/ip')
+        ip_message = 'This is your ip: '+get_ip.text.strip('\n')
         requests.post(bot_chat+ip_message)
         writeLog()
 
@@ -199,5 +202,5 @@ while True:
         #print(new_id)
         #print (json.dumps(json_data,ensure_ascii=False,indent=2))
 
-    time.sleep(2)
-    #break
+    #time.sleep(2)
+    break
