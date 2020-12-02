@@ -1,5 +1,7 @@
 #!/usr/bin/python
 
+# Any new command needs to be declared in the command list and added to the tinydic array
+
 import os
 import subprocess
 import time
