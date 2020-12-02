@@ -12,3 +12,7 @@ botchat = 12121212
 [PATHS]
 pathTodb = Specify the path to your db file
 pathTolog = Specify the path to your log
+
+
+[CRYPTO]
+myholdings = 0.1000

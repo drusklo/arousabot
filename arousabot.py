@@ -34,6 +34,8 @@ botchat = int(config['CHATS']['botchat'])
 myid = int(config['USERS']['myid'])
 alexid = int(config['USERS']['alexid'])
 faid = int(config['USERS']['faid'])
+myholdings = float(config['CRYPTO']['myholdings'])
+
 
 #Whitelist
 whitelist=[myid,faid,alexid]
@@ -44,11 +46,12 @@ log_time = datetime.datetime.now()
 #Command List
 ip = "/ip"
 temp = "/temp"
+btc = "/btc"
 help = "/help"
 hitchhiker1 = "What's the meaning of life?"
 hitchhiker2 = "What is the meaning of life?"
 
-tinydict = {ip,temp,help,hitchhiker1,hitchhiker2}
+tinydict = {ip,btc,temp,help,hitchhiker1,hitchhiker2}
 
 #Getting IP
 #get_ip = requests.get('https://ipinfo.io/ip')
@@ -70,6 +73,21 @@ error_message2 = "Command not found"
 error_message3 = "Trespassers will be shot, survivors will be shot again"
 
 error_message4 = "Unable to provide the requested information"
+
+# Variables for the Crypto Function
+currentprice = 'https://www.bitstamp.net/api/v2/ticker/btceur'
+
+# Crypto function
+def crypto():
+    new_request = requests.get(currentprice)
+    json_data = new_request.json()
+    price = float(json_data['last'])
+    #print(price)
+    global operation
+    operation = myholdings * price
+    operation = int(operation)
+    print(operation)
+    
 
 #Logging function
 def writeLog():
@@ -103,10 +121,10 @@ def readTemp():
 '''
 
 #Enable Logging
-logging = "false"
+logging = 'false'
 
 #Enable verbose mode
-verbose = "true"
+verbose = 'true'
 
 
 while True:
@@ -119,8 +137,8 @@ while True:
     try:
         text = json_data['result'][0]['message']['text'] # This gets the message
         message_id = json_data['result'][0]['message']['message_id'] # This gets the message_id to avoid re-sending data
-        userid = json_data["result"][0]["message"]["from"]["id"] # This gets the user_id
-        chatid = json_data["result"][0]["message"]["chat"]["id"] # This gets the chat_id
+        userid = json_data['result'][0]['message']['from']['id'] # This gets the user_id
+        chatid = json_data['result'][0]['message']['chat']['id'] # This gets the chat_id
     except KeyError: #This deals with the exceptions
         print(datetime.datetime.now())
         print("An Exception has ocurred, will keep going")
@@ -159,6 +177,13 @@ while True:
         cpu = CPUTemperature()
         temp_message = 'CPU Temperature is: ' + str(cpu.temperature) + 'C'
         requests.post(bot_chat+temp_message)
+        writeLog()
+
+    #Requesting bitcoin
+    if text == btc and int(readlastline) != message_id and userid in whitelist and chatid == botchat:
+        crypto()
+        crypto_message = 'This is the value of your holdings: '+str(operation)+' €'
+        requests.post(bot_chat+crypto_message)
         writeLog()
     
     #Error temperature

@@ -2,6 +2,10 @@
 
 ## Changelog
 
+### 02/12/2020
+
+* Added function to check BTC holdings
+
 ### 18/10/2020
 
 * Modified IP request in order to reduce the number of requests sent to the server
