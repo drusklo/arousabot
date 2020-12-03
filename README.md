@@ -2,6 +2,10 @@
 
 ## Changelog
 
+### 03/12/2020
+
+* Added function for ETH, LTC, XRP and total crypto
+
 ### 02/12/2020
 
 * Added function to check BTC holdings
