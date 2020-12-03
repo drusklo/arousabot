@@ -15,4 +15,7 @@ pathTolog = Specify the path to your log
 
 
 [CRYPTO]
-myholdings = 0.1000
+btcholdings = 0.00001
+ethholdings = 0.00001
+ltcholdings = 0.00001
+xrpholdings = 0.00001

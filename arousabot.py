@@ -36,7 +36,10 @@ botchat = int(config['CHATS']['botchat'])
 myid = int(config['USERS']['myid'])
 alexid = int(config['USERS']['alexid'])
 faid = int(config['USERS']['faid'])
-myholdings = float(config['CRYPTO']['myholdings'])
+btcholdings = float(config['CRYPTO']['btcholdings'])
+ethholdings = float(config['CRYPTO']['ethholdings'])
+ltcholdings = float(config['CRYPTO']['ltcholdings'])
+xrpholdings = int(config['CRYPTO']['xrpholdings'])
 
 
 #Whitelist
@@ -48,12 +51,16 @@ log_time = datetime.datetime.now()
 #Command List
 ip = "/ip"
 temp = "/temp"
-btc = "/btc"
+mycrypto = "/crypto"
+mybtc = "/btc"
+myeth = "/eth"
+myltc = "/ltc"
+myxrp = "/xrp"
 help = "/help"
 hitchhiker1 = "What's the meaning of life?"
 hitchhiker2 = "What is the meaning of life?"
 
-tinydict = {ip,btc,temp,help,hitchhiker1,hitchhiker2}
+tinydict = {ip,mycrypto,mybtc,myeth,myltc,myxrp,temp,help,hitchhiker1,hitchhiker2}
 
 #Getting IP
 #get_ip = requests.get('https://ipinfo.io/ip')
@@ -77,19 +84,59 @@ error_message3 = "Trespassers will be shot, survivors will be shot again"
 error_message4 = "Unable to provide the requested information"
 
 # Variables for the Crypto Function
-currentprice = 'https://www.bitstamp.net/api/v2/ticker/btceur'
+btcprice = 'https://www.bitstamp.net/api/v2/ticker/btceur'
+
+ethprice = 'https://www.bitstamp.net/api/v2/ticker/etheur'
+
+ltcprice = 'https://www.bitstamp.net/api/v2/ticker/ltceur'
+
+xrpprice = 'https://www.bitstamp.net/api/v2/ticker/xrpeur'
 
 # Crypto function
 def crypto():
-    new_request = requests.get(currentprice)
+    btc()
+    eth()
+    ltc()
+    xrp()
+    global totaloperation
+    totaloperation = btcoperation + ethoperation + ltcoperation + xrpoperation
+
+# BTC function
+def btc():
+    new_request = requests.get(btcprice)
     json_data = new_request.json()
     price = float(json_data['last'])
-    #print(price)
-    global operation
-    operation = myholdings * price
-    operation = int(operation)
-    print(operation)
+    global btcoperation
+    btcoperation = btcholdings * price
+    btcoperation = int(btcoperation)
+
+# ETH function
+def eth():
+    new_request = requests.get(ethprice)
+    json_data = new_request.json()
+    price = float(json_data['last'])
+    global ethoperation
+    ethoperation = ethholdings * price
+    ethoperation = int(ethoperation)
     
+# ETH function
+def ltc():
+    new_request = requests.get(ltcprice)
+    json_data = new_request.json()
+    price = float(json_data['last'])
+    global ltcoperation
+    ltcoperation = ltcholdings * price
+    ltcoperation = int(ltcoperation)
+
+# ETH function
+def xrp():
+    new_request = requests.get(xrpprice)
+    json_data = new_request.json()
+    price = float(json_data['last'])
+    global xrpoperation
+    xrpoperation = xrpholdings * price
+    xrpoperation = int(xrpoperation)
+
 
 #Logging function
 def writeLog():
@@ -164,6 +211,7 @@ while True:
     #Sending Messages 
         
     #Successful messages
+
     #Requesting a IP
     if text == ip and int(readlastline) != message_id and userid in whitelist and chatid == botchat:
         #requests.post(bot_chat+ip_message)
@@ -181,11 +229,39 @@ while True:
         requests.post(bot_chat+temp_message)
         writeLog()
 
-    #Requesting bitcoin
-    if text == btc and int(readlastline) != message_id and userid in whitelist and chatid == botchat:
+    #Requesting crypto
+    if text == mycrypto and int(readlastline) != message_id and userid in whitelist and chatid == botchat:
         crypto()
-        crypto_message = 'This is the value of your holdings: '+str(operation)+' €'
+        crypto_message = 'This is the total value of your holdings: '+str(totaloperation)+' €'
         requests.post(bot_chat+crypto_message)
+        writeLog()
+
+    #Requesting bitcoin
+    if text == mybtc and int(readlastline) != message_id and userid in whitelist and chatid == botchat:
+        btc()
+        btc_message = 'This is the value of your BTC holdings: '+str(btcoperation)+' €'
+        requests.post(bot_chat+btc_message)
+        writeLog()
+
+    #Requesting ethereum
+    if text == myeth and int(readlastline) != message_id and userid in whitelist and chatid == botchat:
+        eth()
+        eth_message = 'This is the value of your ETH holdings: '+str(ethoperation)+' €'
+        requests.post(bot_chat+eth_message)
+        writeLog()
+
+    #Requesting litecoin
+    if text == myltc and int(readlastline) != message_id and userid in whitelist and chatid == botchat:
+        ltc()
+        ltc_message = 'This is the value of your LTC holdings: '+str(ltcoperation)+' €'
+        requests.post(bot_chat+ltc_message)
+        writeLog()
+
+    #Requesting ripple
+    if text == myxrp and int(readlastline) != message_id and userid in whitelist and chatid == botchat:
+        xrp()
+        xrp_message = 'This is the value of your XRP holdings: '+str(xrpoperation)+' €'
+        requests.post(bot_chat+xrp_message)
         writeLog()
     
     #Error temperature
