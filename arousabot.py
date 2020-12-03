@@ -51,6 +51,7 @@ log_time = datetime.datetime.now()
 #Command List
 ip = "/ip"
 temp = "/temp"
+all = "/all"
 mycrypto = "/crypto"
 mybtc = "/btc"
 myeth = "/eth"
@@ -60,6 +61,7 @@ help = "/help"
 hitchhiker1 = "What's the meaning of life?"
 hitchhiker2 = "What is the meaning of life?"
 
+# If a command is not added here it will show as an error
 tinydict = {ip,mycrypto,mybtc,myeth,myltc,myxrp,temp,help,hitchhiker1,hitchhiker2}
 
 #Getting IP
@@ -84,59 +86,62 @@ error_message3 = "Trespassers will be shot, survivors will be shot again"
 error_message4 = "Unable to provide the requested information"
 
 # Variables for the Crypto Function
-btcprice = 'https://www.bitstamp.net/api/v2/ticker/btceur'
+currentprice = 'https://www.bitstamp.net/api/v2/ticker/'
 
-ethprice = 'https://www.bitstamp.net/api/v2/ticker/etheur'
 
-ltcprice = 'https://www.bitstamp.net/api/v2/ticker/ltceur'
+# Send function
+def send():
+    requests.post(bot_chat+message)
 
-xrpprice = 'https://www.bitstamp.net/api/v2/ticker/xrpeur'
-
-# Crypto function
-def crypto():
-    btc()
-    eth()
-    ltc()
-    xrp()
-    global totaloperation
-    totaloperation = btcoperation + ethoperation + ltcoperation + xrpoperation
-
-# BTC function
-def btc():
-    new_request = requests.get(btcprice)
+# Crypto functions
+def crypto(coin='btc'):
+    global operation
+    new_request = requests.get(currentprice+coin+'eur')
     json_data = new_request.json()
     price = float(json_data['last'])
-    global btcoperation
-    btcoperation = btcholdings * price
-    btcoperation = int(btcoperation)
+    global message
+    if coin == 'btc':
+        #print('BTC')
+        operation = btcholdings * price
+        operation = int(operation)
+        message = 'This is the value of your '+coin+' holdings: '+str(operation)+' €'
+    elif coin == 'eth':
+        #print('ETH')
+        operation = ethholdings * price
+        operation = int(operation)
+        message = 'This is the value of your '+coin+' holdings: '+str(operation)+' €'
+        #requests.post(bot_chat+message)
+    elif coin == 'ltc':
+        #print('LTC')
+        operation = ltcholdings * price
+        operation = int(operation)
+        message = 'This is the value of your '+coin+' holdings: '+str(operation)+' €'
+        #requests.post(bot_chat+message)
+    elif coin == 'xrp':
+        #print('XRP')
+        operation = xrpholdings * price
+        operation = int(operation)
+        message = 'This is the value of your '+coin+' holdings: '+str(operation)+' €'
+        #requests.post(bot_chat+message)
+        
+    else:
+        print('Failure')
 
-# ETH function
-def eth():
-    new_request = requests.get(ethprice)
-    json_data = new_request.json()
-    price = float(json_data['last'])
-    global ethoperation
-    ethoperation = ethholdings * price
-    ethoperation = int(ethoperation)
-    
-# ETH function
-def ltc():
-    new_request = requests.get(ltcprice)
-    json_data = new_request.json()
-    price = float(json_data['last'])
-    global ltcoperation
-    ltcoperation = ltcholdings * price
-    ltcoperation = int(ltcoperation)
 
-# ETH function
-def xrp():
-    new_request = requests.get(xrpprice)
-    json_data = new_request.json()
-    price = float(json_data['last'])
-    global xrpoperation
-    xrpoperation = xrpholdings * price
-    xrpoperation = int(xrpoperation)
 
+# All my holdings
+def holdings():
+    global message
+    crypto('btc')
+    mybtc = operation
+    crypto('eth')
+    myeth = operation
+    crypto('ltc')
+    myltc = operation
+    crypto('xrp')
+    myxrp = operation
+    all = mybtc + myeth + myltc + myxrp
+    message = 'This is the value of all your holdings: '+str(all)+' €'
 
 #Logging function
 def writeLog():
@@ -162,12 +167,6 @@ def writeDb():
     dbFile = open(pathTodb,'w')
     dbFile.write(str(message_id))
     dbFile.close()
-'''
-#Reading Temperature Function (Only works in Raspberry Pi)
-def readTemp():
-    cpu = CPUTemperature()
-    temp_message = 'CPU Temperature is: ' + str(cpu.temperature) + 'C'
-'''
 
 #Enable Logging
 logging = 'false'
@@ -229,39 +228,34 @@ while True:
         requests.post(bot_chat+temp_message)
         writeLog()
 
-    #Requesting crypto
+    #Requesting all holdings
     if text == mycrypto and int(readlastline) != message_id and userid in whitelist and chatid == botchat:
-        crypto()
-        crypto_message = 'This is the total value of your holdings: '+str(totaloperation)+' €'
-        requests.post(bot_chat+crypto_message)
+        holdings()
+        send()
         writeLog()
 
     #Requesting bitcoin
     if text == mybtc and int(readlastline) != message_id and userid in whitelist and chatid == botchat:
-        btc()
-        btc_message = 'This is the value of your BTC holdings: '+str(btcoperation)+' €'
-        requests.post(bot_chat+btc_message)
+        crypto('btc')
+        send()
         writeLog()
 
     #Requesting ethereum
     if text == myeth and int(readlastline) != message_id and userid in whitelist and chatid == botchat:
-        eth()
-        eth_message = 'This is the value of your ETH holdings: '+str(ethoperation)+' €'
-        requests.post(bot_chat+eth_message)
+        crypto('eth')
+        send()
         writeLog()
 
     #Requesting litecoin
     if text == myltc and int(readlastline) != message_id and userid in whitelist and chatid == botchat:
-        ltc()
-        ltc_message = 'This is the value of your LTC holdings: '+str(ltcoperation)+' €'
-        requests.post(bot_chat+ltc_message)
+        crypto('ltc')
+        send()
         writeLog()
 
     #Requesting ripple
     if text == myxrp and int(readlastline) != message_id and userid in whitelist and chatid == botchat:
-        xrp()
-        xrp_message = 'This is the value of your XRP holdings: '+str(xrpoperation)+' €'
-        requests.post(bot_chat+xrp_message)
+        crypto('xrp')
+        send()
         writeLog()
     
     #Error temperature
