@@ -104,24 +104,24 @@ def crypto(coin='btc'):
         #print('BTC')
         operation = btcholdings * price
         operation = int(operation)
-        message = 'This is the value of your '+coin+' holdings: '+str(operation)+' €'
+        message = 'This is the value of your '+coin+' holdings: \n'+str(operation)+' €'
     elif coin == 'eth':
         #print('ETH')
         operation = ethholdings * price
         operation = int(operation)
-        message = 'This is the value of your '+coin+' holdings: '+str(operation)+' €'
+        message = 'This is the value of your '+coin+' holdings: \n'+str(operation)+' €'
         #requests.post(bot_chat+message)
     elif coin == 'ltc':
         #print('LTC')
         operation = ltcholdings * price
         operation = int(operation)
-        message = 'This is the value of your '+coin+' holdings: '+str(operation)+' €'
+        message = 'This is the value of your '+coin+' holdings: \n'+str(operation)+' €'
         #requests.post(bot_chat+message)
     elif coin == 'xrp':
         #print('XRP')
         operation = xrpholdings * price
         operation = int(operation)
-        message = 'This is the value of your '+coin+' holdings: '+str(operation)+' €'
+        message = 'This is the value of your '+coin+' holdings: \n'+str(operation)+' €'
         #requests.post(bot_chat+message)
         
     else:
@@ -141,7 +141,8 @@ def holdings():
     crypto('xrp')
     myxrp = operation
     all = mybtc + myeth + myltc + myxrp
-    message = 'This is the value of all your holdings: '+str(all)+' €'
+    #message = 'This is the value of all your holdings: '+str(all)+' €'
+    message = 'This is the value of all your holdings:\n BTC: '+str(mybtc)+' € \n ETH: '+str(myeth)+' € \n LTC: '+str(myltc)+' € \n XRP: '+str(myxrp)+' € \n TOTAL: '+str(all)+' €'
 
 #Logging function
 def writeLog():
