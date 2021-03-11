@@ -203,6 +203,15 @@ while True:
     #POST Messages to everyone else
     bot_error="https://api.telegram.org/bot"+str(apiKey)+"/sendMessage?chat_id="+str(chatid)+"&text="
 
+    #EDIT MESSAGES.
+    bot_edit="https://api.telegram.org/bot"+str(apiKey)+"/editMessageText?chat_id="+str(chatid)+"&message_id="+str(sent_message_id)+"&text="
+
+                
+       
+            
+            
+        
+
 
     #Checking if message has been sent
     if int(readlastline) == message_id:
@@ -273,6 +282,17 @@ while True:
     if (text == hitchhiker1 or text == hitchhiker2) and int(readlastline) != message_id:
         requests.post(bot_chat+hitchhiker_message)
         writeLog()
+
+    #STOCK_UPDATE
+    if (true):
+        if(sent_message_id):
+            #send for the first time the stock data
+            save_sent_message = json.loads(requests.post(bot_chat+stock_data))
+            sent_message_id = save_sent_message["result"]["message_id"]
+
+        else:
+            #edit message
+            requests.post(bot_edit+stock_data)
 
 
     #Errors
