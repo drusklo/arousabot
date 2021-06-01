@@ -25,3 +25,11 @@
 * Add RemindMe function
 * Connect to a DB
 * Use the logging python module instead of creating own logging function
+* Deal with exceptions that bring down the app when there is no internet
+* Add max prize of holdings
+* Add profit (%) to crypto logic
+
+
+## Bugs
+
+If the dbId.db is empty the whole process fails

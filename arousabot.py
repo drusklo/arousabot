@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 
 # Any new command needs to be declared in the command list and added to the tinydic array
 
@@ -11,7 +12,10 @@ import requests
 import json
 import configparser
 import getpass
-from gpiozero import CPUTemperature
+if os.system("uname -a | grep raspberry") == True:
+    from gpiozero import CPUTemperature
+else:
+    pass
 
 #Getting hostname
 host = os.uname()[1]
@@ -68,7 +72,9 @@ tinydict = {ip,mycrypto,mybtc,myeth,myltc,myxrp,temp,help,hitchhiker1,hitchhiker
 #get_ip = requests.get('https://ipinfo.io/ip')
 
 #GET JSON DATA from Telegram API
+
 receive_data="https://api.telegram.org/bot"+str(apiKey)+"/GetUpdates?offset=-1&limit=1"
+
 
 #Messages
 #ip_message = 'This is your ip: '+get_ip.text.strip('\n')
@@ -155,6 +161,7 @@ def writeLog():
     logFile.write(os.linesep)
     logFile.close()
 
+
 #Read DB function
 def readDb():
     global dbFile
@@ -178,7 +185,8 @@ verbose = 'true'
 
 while True:
     
-    new_request = requests.get(receive_data)
+
+    new_request = requests.get(receive_data) 
     json_data = new_request.json()
 
     
