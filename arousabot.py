@@ -12,10 +12,10 @@ import requests
 import json
 import configparser
 import getpass
-if os.system("uname -a | grep raspberry") == True:
-    from gpiozero import CPUTemperature
-else:
-    pass
+from gpiozero import CPUTemperature
+#if os.system("uname -a | grep raspberry") == True:
+#else:
+#    pass
 
 #Getting hostname
 host = os.uname()[1]
