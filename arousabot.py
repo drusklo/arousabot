@@ -72,7 +72,6 @@ tinydict = {ip,mycrypto,mybtc,myeth,myltc,myxrp,temp,help,hitchhiker1,hitchhiker
 #get_ip = requests.get('https://ipinfo.io/ip')
 
 #GET JSON DATA from Telegram API
-
 receive_data="https://api.telegram.org/bot"+str(apiKey)+"/GetUpdates?offset=-1&limit=1"
 
 
@@ -185,10 +184,13 @@ verbose = 'true'
 
 while True:
     
+    try:
+        new_request = requests.get(receive_data) 
+        json_data = new_request.json()
+    except requests.ConnectionError:
+        pass
 
-    new_request = requests.get(receive_data) 
-    json_data = new_request.json()
-
+    
     
 #Reading JSON Data
     try:
