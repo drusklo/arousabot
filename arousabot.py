@@ -7,12 +7,14 @@ import os
 import subprocess
 import time
 import datetime
+from datetime import datetime
 import sys
 import requests
 import json
 import configparser
 import getpass
-from gpiozero import CPUTemperature
+# Enable this in order to get Raspberry Pi Temp
+#from gpiozero import CPUTemperature
 #if os.system("uname -a | grep raspberry") == True:
 #else:
 #    pass
@@ -49,8 +51,8 @@ xrpholdings = int(config['CRYPTO']['xrpholdings'])
 #Whitelist
 whitelist=[myid,faid,alexid]
 
-#Random Variables
-log_time = datetime.datetime.now()
+#Misc Variables
+log_time = datetime.now()
 
 #Command List
 ip = "/ip"
@@ -203,7 +205,6 @@ while True:
         print("An Exception has ocurred, will keep going")
         pass
 
-
     #Read DB File
     readDb()
 
@@ -311,4 +312,4 @@ while True:
         #print (json.dumps(json_data,ensure_ascii=False,indent=2))
 
     #time.sleep(2)
-    break
+    #break

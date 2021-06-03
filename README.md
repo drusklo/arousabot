@@ -2,6 +2,10 @@
 
 ## Changelog
 
+### 03/06/2021
+
+* Created a second module for Backup Monitoring
+
 ### 01/06/2021
 
 * Added a way to deal with no internet exception
@@ -24,6 +28,7 @@
 * Reading config file in same directory
 
 ### Pending
+
 
 * Use a variable instead of a db file
 * Add RemindMe function
