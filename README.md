@@ -2,6 +2,10 @@
 
 ## Changelog
 
+### 04/06/2021
+
+* The bot now writes/reads the messageid, user, command, message and date to a DB
+
 ### 03/06/2021
 
 * Created a second module for Backup Monitoring
@@ -29,15 +33,11 @@
 
 ### Pending
 
-
-* Use a variable instead of a db file
+* Add option to run the backup manually
 * Add RemindMe function
-* Connect to a DB
 * Use the logging python module instead of creating own logging function
-* Add max prize of holdings
-* Add profit (%) to crypto logic
 
 
 ## Bugs
 
-If the dbId.db is empty the whole process fails
+If the dbId.db is empty the whole process fails - This is solved now as we are using a SQLITE db
