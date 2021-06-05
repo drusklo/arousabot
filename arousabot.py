@@ -1,6 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+##DEV##
+
 # Any new command needs to be declared in the command list and added to the tinydic array
 
 import os
