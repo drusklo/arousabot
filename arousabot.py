@@ -39,13 +39,14 @@ config_file = path+'/arousabot.conf'
 pathTolog = path+'/arousabot.log'
 
 #Database location
-db = sqlite3.connect(path+'/arousabot.db')
+db = sqlite3.connect(path+'/arousabot_dev.db')
 cursor = db.cursor()
 
 #Parsing config file
 config = configparser.ConfigParser()
 config.read(config_file)
 apiKey = config['DEFAULT']['ApiKey']
+apiKey_dev = config['DEFAULT']['ApiKey_DEV']
 botchat = int(config['CHATS']['botchat'])
 myid = int(config['USERS']['myid'])
 alexid = int(config['USERS']['alexid'])
@@ -83,7 +84,10 @@ tinydict = {ip,mycrypto,mybtc,myeth,myltc,myxrp,temp,help,hitchhiker1,hitchhiker
 #get_ip = requests.get('https://ipinfo.io/ip')
 
 #GET JSON DATA from Telegram API
-receive_data="https://api.telegram.org/bot"+str(apiKey)+"/GetUpdates?offset=-1&limit=1"
+#receive_data="https://api.telegram.org/bot"+str(apiKey)+"/GetUpdates?offset=-1&limit=1"
+
+#GET JSON DATA from Telegram API - DEV
+receive_data="https://api.telegram.org/bot"+str(apiKey_dev)+"/GetUpdates?offset=-1&limit=1"
 
 
 #Messages
@@ -239,10 +243,16 @@ while True:
     getId()
 
     #POST MESSAGES only to my user or users in the whitelist
-    bot_chat="https://api.telegram.org/bot"+str(apiKey)+"/sendMessage?chat_id="+str(userid)+"&text="
+    #bot_chat="https://api.telegram.org/bot"+str(apiKey)+"/sendMessage?chat_id="+str(userid)+"&text="
 
     #POST Messages to everyone else
-    bot_error="https://api.telegram.org/bot"+str(apiKey)+"/sendMessage?chat_id="+str(chatid)+"&text="
+    #bot_error="https://api.telegram.org/bot"+str(apiKey)+"/sendMessage?chat_id="+str(chatid)+"&text="
+
+    #POST MESSAGES only to my user or users in the whitelist - DEV
+    bot_chat="https://api.telegram.org/bot"+str(apiKey_dev)+"/sendMessage?chat_id="+str(userid)+"&text="
+
+    #POST Messages to everyone else - DEV
+    bot_error="https://api.telegram.org/bot"+str(apiKey_dev)+"/sendMessage?chat_id="+str(chatid)+"&text="
 
 
     #Checking if message has been sent
