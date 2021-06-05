@@ -85,8 +85,6 @@ tinydict = {ip,mycrypto,mybtc,myeth,myltc,myxrp,temp,help,hitchhiker1,hitchhiker
 #Getting IP
 #get_ip = requests.get('https://ipinfo.io/ip')
 
-#GET JSON DATA from Telegram API
-#receive_data="https://api.telegram.org/bot"+str(apiKey)+"/GetUpdates?offset=-1&limit=1"
 
 #GET JSON DATA from Telegram API - DEV
 receive_data="https://api.telegram.org/bot"+str(apiKey_dev)+"/GetUpdates?offset=-1&limit=1"
@@ -234,7 +232,7 @@ while True:
         username = json_data['result'][0]['message']['from']['username'] # This gets the username
         chatid = json_data['result'][0]['message']['chat']['id'] # This gets the chat_id
     except KeyError: #This deals with the exceptions
-        print(datetime.datetime.now())
+        print(datetime.now())
         print("An Exception has ocurred, will keep going")
         pass
 
@@ -243,12 +241,6 @@ while True:
 
     # Read from SQLITE DB
     getId()
-
-    #POST MESSAGES only to my user or users in the whitelist
-    #bot_chat="https://api.telegram.org/bot"+str(apiKey)+"/sendMessage?chat_id="+str(userid)+"&text="
-
-    #POST Messages to everyone else
-    #bot_error="https://api.telegram.org/bot"+str(apiKey)+"/sendMessage?chat_id="+str(chatid)+"&text="
 
     #POST MESSAGES only to my user or users in the whitelist - DEV
     bot_chat="https://api.telegram.org/bot"+str(apiKey_dev)+"/sendMessage?chat_id="+str(userid)+"&text="
