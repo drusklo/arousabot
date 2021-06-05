@@ -228,7 +228,7 @@ while True:
         username = json_data['result'][0]['message']['from']['username'] # This gets the username
         chatid = json_data['result'][0]['message']['chat']['id'] # This gets the chat_id
     except KeyError: #This deals with the exceptions
-        print(datetime.datetime.now())
+        print(datetime.now())
         print("An Exception has ocurred, will keep going")
         pass
 
