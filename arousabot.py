@@ -62,10 +62,6 @@ xrpholdings = int(config['CRYPTO']['xrpholdings'])
 #Whitelist
 whitelist=[myid,faid,alexid]
 
-#Misc Variables
-log_time = datetime.now()
-
-
 #Command List
 ip = "/ip"
 temp = "/temp"
@@ -222,7 +218,8 @@ while True:
     except requests.ConnectionError:
         pass
 
-    
+    #Misc Variables
+    log_time = datetime.now()
     
 #Reading JSON Data
     try:
