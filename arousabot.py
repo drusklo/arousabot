@@ -71,9 +71,10 @@ myeth = "/eth"
 help = "/help"
 hitchhiker1 = "What's the meaning of life?"
 hitchhiker2 = "What is the meaning of life?"
+pcup = "/pcup"
 
 # If a command is not added here it will show as an error
-tinydict = {ip,mycrypto,mybtc,myeth,temp,help,hitchhiker1,hitchhiker2}
+tinydict = {ip,mycrypto,mybtc,myeth,temp,help,hitchhiker1,hitchhiker2,pcup}
 
 #Getting IP
 #get_ip = requests.get('https://ipinfo.io/ip')
@@ -231,6 +232,17 @@ while True:
     #Sending Messages 
         
     #Successful messages
+
+    #Is my PC Up
+    if text == pcup and int((lastid)[0]) != message_id and userid in whitelist and chatid == botchat:
+        ping = os.system('ping -c 3 192.168.0.5')
+        if ping == 0:
+            ping_message = 'Your computer is up'
+        else:
+            ping_message = 'Your computer seems to be down'
+        message = ping_message
+        requests.post(bot_chat+ping_message)
+        writeLog()
 
     #Requesting a IP
     if text == ip and int((lastid)[0]) != message_id and userid in whitelist and chatid == botchat:
