@@ -235,7 +235,7 @@ while True:
 
     #Is my PC Up
     if text == pcup and int((lastid)[0]) != message_id and userid in whitelist and chatid == botchat:
-        ping = os.system('ping -c 3 192.168.0.5')
+        ping = os.system('ping -c 3 192.168.42.5')
         if ping == 0:
             ping_message = 'Your computer is up'
         else:
