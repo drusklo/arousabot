@@ -28,7 +28,6 @@ args = parser.parse_args()
 if args.env == 'PROD':
     print('This is PROD')
     env = ''
-
 elif args.env == 'DEV':
     print('This is DEV')
     env = '_dev'
@@ -94,18 +93,6 @@ receive_data="https://api.telegram.org/bot"+str(apiKey)+"/GetUpdates?offset=-1&l
 
 # Messages
 #ip_message = 'This is your ip: '+get_ip.text.strip('\n')
-
-help_message = "I need somebody"
-
-hitchhiker_message = "42"
-
-error_message = "IP hasn't changed or the command is incorrect"
-
-error_message2 = "Command not found"
-
-error_message3 = "Trespassers will be shot, survivors will be shot again"
-
-error_message4 = "Unable to provide the requested information"
 
 # Variables for the Crypto Function
 currentprice = 'https://www.bitstamp.net/api/v2/ticker/'
@@ -215,6 +202,7 @@ while True:
     log_time = datetime.now()
     
 # Reading JSON Data
+    # This deals with normal messages in group chats
     if 'message' in json_data['result'][0] and json_data['result'][0]['message']['chat']['type'] == 'group':
         print('This is anything in a group')
         if 'text' in json_data['result'][0]['message'] and 'username' in json_data['result'][0]['message']['from']:
@@ -349,20 +337,29 @@ while True:
         send()
         writeLog()
     
+    # Requesting ethereum
+    if text == myeth and int((lastid)[0]) != message_id and userid in whitelist and chatid == botchat:
+        crypto('eth')
+        send()
+        writeLog()
+    
     # Error temperature
     if text == temp and host != 'raspberrypi' and int((lastid)[0]) != message_id and userid in whitelist and chatid == botchat:
+        error_message4 = "Unable to provide the requested information"
         message = error_message4
         requests.post(bot_chat+error_message4)
         writeLog()
 
     # Help Command
     if text == help and int((lastid)[0]) != message_id and userid in whitelist and chatid == botchat:
+        help_message = "I need somebody"
         message = help_message
         requests.post(bot_chat+help_message)
         writeLog()
 
     # Easter Egg
     if (text == hitchhiker1 or text == hitchhiker2) and int((lastid)[0]) != message_id:
+        hitchhiker_message = "42"
         message = hitchhiker_message
         requests.post(bot_chat+hitchhiker_message)
         writeLog()
@@ -371,12 +368,14 @@ while True:
     # Errors
     # Command Not Found
     if text not in tinydict and int((lastid)[0]) != message_id and userid in whitelist and chatid == botchat:
+        error_message2 = "Command not found"
         message = error_message2
         requests.post(bot_chat+error_message2)
         writeLog()
 
     # User not allowed
     if int((lastid)[0]) != message_id and userid != myid:
+        error_message3 = "Trespassers will be shot, survivors will be shot again"
         message = error_message3
         requests.post(bot_error+error_message3)
         writeLog()
