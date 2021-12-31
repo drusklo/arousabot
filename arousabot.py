@@ -35,7 +35,7 @@ user = getpass.getuser()
 path = __location__ = os.path.realpath(
     os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
-#Define your config, db and log file here
+#Define your config, db and log file here.
 config_file = path+'/arousabot.conf'
 #pathTodb = path+'/dbId.db'
 pathTolog = path+'/arousabot.log'
@@ -55,8 +55,6 @@ alexid = int(config['USERS']['alexid'])
 faid = int(config['USERS']['faid'])
 btcholdings = float(config['CRYPTO']['btcholdings'])
 ethholdings = float(config['CRYPTO']['ethholdings'])
-ltcholdings = float(config['CRYPTO']['ltcholdings'])
-xrpholdings = int(config['CRYPTO']['xrpholdings'])
 
 
 #Whitelist
@@ -69,14 +67,13 @@ all = "/all"
 mycrypto = "/crypto"
 mybtc = "/btc"
 myeth = "/eth"
-myltc = "/ltc"
-myxrp = "/xrp"
 help = "/help"
 hitchhiker1 = "What's the meaning of life?"
 hitchhiker2 = "What is the meaning of life?"
+pcup = "/pcup"
 
 # If a command is not added here it will show as an error
-tinydict = {ip,mycrypto,mybtc,myeth,myltc,myxrp,temp,help,hitchhiker1,hitchhiker2}
+tinydict = {ip,mycrypto,mybtc,myeth,temp,help,hitchhiker1,hitchhiker2,pcup}
 
 #Getting IP
 #get_ip = requests.get('https://ipinfo.io/ip')
@@ -127,19 +124,6 @@ def crypto(coin='btc'):
         operation = int(operation)
         message = 'This is the value of your '+coin+' holdings: \n'+str(operation)+' €'
         #requests.post(bot_chat+message)
-    elif coin == 'ltc':
-        #print('LTC')
-        operation = ltcholdings * price
-        operation = int(operation)
-        message = 'This is the value of your '+coin+' holdings: \n'+str(operation)+' €'
-        #requests.post(bot_chat+message)
-    elif coin == 'xrp':
-        #print('XRP')
-        operation = xrpholdings * price
-        operation = int(operation)
-        message = 'This is the value of your '+coin+' holdings: \n'+str(operation)+' €'
-        #requests.post(bot_chat+message)
-        
     else:
         print('Failure')
 
@@ -152,13 +136,9 @@ def holdings():
     mybtc = operation
     crypto('eth')
     myeth = operation
-    crypto('ltc')
-    myltc = operation
-    crypto('xrp')
-    myxrp = operation
-    all = mybtc + myeth + myltc + myxrp
+    all = mybtc + myeth
     #message = 'This is the value of all your holdings: '+str(all)+' €'
-    message = 'This is the value of all your holdings:\n BTC: '+str(mybtc)+' € \n ETH: '+str(myeth)+' € \n LTC: '+str(myltc)+' € \n XRP: '+str(myxrp)+' € \n TOTAL: '+str(all)+' €'
+    message = 'This is the value of all your holdings:\n BTC: '+str(mybtc)+' € \n ETH: '+str(myeth)+' € \n TOTAL: '+str(all)+' €'
 
 #Logging function
 def writeLog():
@@ -253,6 +233,17 @@ while True:
     #Sending Messages 
         
     #Successful messages
+
+    #Is my PC Up
+    if text == pcup and int((lastid)[0]) != message_id and userid in whitelist and chatid == botchat:
+        ping = os.system('ping -c 3 192.168.42.5')
+        if ping == 0:
+            ping_message = 'Your computer is up'
+        else:
+            ping_message = 'Your computer seems to be down'
+        message = ping_message
+        requests.post(bot_chat+ping_message)
+        writeLog()
 
     #Requesting a IP
     if text == ip and int((lastid)[0]) != message_id and userid in whitelist and chatid == botchat:
