@@ -48,6 +48,7 @@ cursor = db.cursor()
 config = configparser.ConfigParser()
 config.read(config_file)
 apiKey = config['DEFAULT']['ApiKey']
+apiKey_dev = config['DEFAULT']['ApiKey_DEV']
 botchat = int(config['CHATS']['botchat'])
 myid = int(config['USERS']['myid'])
 alexid = int(config['USERS']['alexid'])
@@ -79,7 +80,7 @@ tinydict = {ip,mycrypto,mybtc,myeth,temp,help,hitchhiker1,hitchhiker2,pcup}
 
 
 #GET JSON DATA from Telegram API - DEV
-receive_data="https://api.telegram.org/bot"+str(apiKey)+"/GetUpdates?offset=-1&limit=1"
+receive_data="https://api.telegram.org/bot"+str(apiKey_dev)+"/GetUpdates?offset=-1&limit=1"
 
 
 #Messages
@@ -283,10 +284,10 @@ while True:
     getId()
 
     #POST MESSAGES only to my user or users in the whitelist - DEV
-    bot_chat="https://api.telegram.org/bot"+str(apiKey)+"/sendMessage?chat_id="+str(userid)+"&text="
+    bot_chat="https://api.telegram.org/bot"+str(apiKey_dev)+"/sendMessage?chat_id="+str(userid)+"&text="
 
     #POST Messages to everyone else - DEV
-    bot_error="https://api.telegram.org/bot"+str(apiKey)+"/sendMessage?chat_id="+str(chatid)+"&text="
+    bot_error="https://api.telegram.org/bot"+str(apiKey_dev)+"/sendMessage?chat_id="+str(chatid)+"&text="
 
 
     #Checking if message has been sent
@@ -395,4 +396,4 @@ while True:
         #print (json.dumps(json_data,ensure_ascii=False,indent=2))
 
     time.sleep(2)
-    #break
+    break
