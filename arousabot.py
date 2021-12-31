@@ -21,16 +21,29 @@ import argparse
 #else:
 #    pass
 
+verbose = 'false'
+
 # Arguments
 parser = argparse.ArgumentParser()
 parser.add_argument('-env', help='Specify your environment')
+parser.add_argument('-v', '--verbose', action="store_true", help='Verbose mode')
 args = parser.parse_args()
 if args.env == 'PROD':
     print('This is PROD')
     env = ''
+    if args.verbose:
+        print('Verbose mode is enabled')
+        verbose = 'true'
+    else:
+        print('Verbose mode is off')
 elif args.env == 'DEV':
     print('This is DEV')
     env = '_dev'
+    if args.verbose:
+        print('Verbose mode is enabled')
+        verbose = 'true'
+    else:
+        print('Verbose mode is off')
 
 
 # Getting hostname
@@ -83,16 +96,8 @@ pcup = "/pcup"
 # If a command is not added here it will show as an error
 tinydict = {ip,mycrypto,mybtc,myeth,temp,help,hitchhiker1,hitchhiker2,pcup}
 
-# Getting IP
-#get_ip = requests.get('https://ipinfo.io/ip')
-
-
-# GET JSON DATA from Telegram API - DEV
+# GET JSON DATA from Telegram API
 receive_data="https://api.telegram.org/bot"+str(apiKey)+"/GetUpdates?offset=-1&limit=1"
-
-
-# Messages
-#ip_message = 'This is your ip: '+get_ip.text.strip('\n')
 
 # Variables for the Crypto Function
 currentprice = 'https://www.bitstamp.net/api/v2/ticker/'
@@ -133,7 +138,6 @@ def holdings():
     crypto('eth')
     myeth = operation
     all = mybtc + myeth
-    #message = 'This is the value of all your holdings: '+str(all)+' €'
     message = 'This is the value of all your holdings:\n BTC: '+str(mybtc)+' € \n ETH: '+str(myeth)+' € \n TOTAL: '+str(all)+' €'
 
 # Logging function
@@ -158,7 +162,7 @@ def readDbFile():
     readlastline = dbFile.readline()
     dbFile.close()
 
-# Write DB function
+# Write DB File function
 def writeDbFile():
     dbFile = open(pathTodb,'w')
     dbFile.write(str(message_id))
@@ -171,19 +175,21 @@ def getId():
     global lastid
     cursor.execute('SELECT messageid FROM messages order by date desc limit 1')
     lastid = cursor.fetchone()
+    db.close()
     #print(int(lastid[0]))
 
 # Write Sqlite DB
 def writeId():
     cursor.execute('INSERT INTO messages(messageid, message, command, user, date) VALUES(?, ?, ?, ?, datetime())',(message_id, message, text, username, ))
     db.commit()
+    db.close()
 
 
 # Enable Logging
 #logging = 'false'
 
 # Enable verbose mode
-verbose = 'true'
+#verbose = 'true'
 
 
 while True:
@@ -291,6 +297,7 @@ while True:
     if int((lastid)[0]) == message_id:
         print("Checking SQLITE DB, Message has already been sent")
         time.sleep(2)
+    
     # Sending Messages 
         
     # Successful messages
@@ -364,7 +371,6 @@ while True:
         requests.post(bot_chat+hitchhiker_message)
         writeLog()
 
-
     # Errors
     # Command Not Found
     if text not in tinydict and int((lastid)[0]) != message_id and userid in whitelist and chatid == botchat:
@@ -374,7 +380,7 @@ while True:
         writeLog()
 
     # User not allowed
-    if int((lastid)[0]) != message_id and userid != myid:
+    if int((lastid)[0]) != message_id and userid not in whitelist:
         error_message3 = "Trespassers will be shot, survivors will be shot again"
         message = error_message3
         requests.post(bot_error+error_message3)
@@ -394,13 +400,11 @@ while True:
 
     if verbose == "true":
         #print(json_data)
-        #print(time)
         print(text)
         print(log_time)
         print("This is the message that we are getting from the API: "+str(message_id))
         print("This is the last line that was written to the DB: "+str(lastid[0]))
-        #print(userid)
-        #print(new_id)
+        print('UserId: '+str(userid))
         #print (json.dumps(json_data,ensure_ascii=False,indent=2))
 
     time.sleep(2)
