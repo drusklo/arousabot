@@ -1,8 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-##DEV##
-
 # Any new command needs to be declared in the command list and added to the tinydic array
 
 import os
@@ -25,18 +23,15 @@ import argparse
 
 # Arguments
 parser = argparse.ArgumentParser()
-parser.add_argument("-env", help="Specify your environment")
+parser.add_argument('-env', help='Specify your environment')
 args = parser.parse_args()
 if args.env == 'PROD':
-    print("This is PROD")
+    print('This is PROD')
     env = ''
 
 elif args.env == 'DEV':
-    print("This is DEV")
-    env = 'dev'
-    print(env)
-
-
+    print('This is DEV')
+    env = '_dev'
 
 
 # Getting hostname
@@ -56,14 +51,13 @@ config_file = path+'/arousabot.conf'
 pathTolog = path+'/arousabot.log'
 
 # Database location
-db = sqlite3.connect(path+'/arousabot_'+env+'.db')
+db = sqlite3.connect(path+'/arousabot'+env+'.db')
 cursor = db.cursor()
 
 # Parsing config file
 config = configparser.ConfigParser()
 config.read(config_file)
-apiKey = config['DEFAULT']['ApiKey']
-apiKey_dev = config['DEFAULT']['ApiKey_DEV']
+apiKey = config['DEFAULT']['ApiKey'+env]
 botchat = int(config['CHATS']['botchat'])
 myid = int(config['USERS']['myid'])
 alexid = int(config['USERS']['alexid'])
@@ -95,7 +89,7 @@ tinydict = {ip,mycrypto,mybtc,myeth,temp,help,hitchhiker1,hitchhiker2,pcup}
 
 
 # GET JSON DATA from Telegram API - DEV
-receive_data="https://api.telegram.org/bot"+str(apiKey_dev)+"/GetUpdates?offset=-1&limit=1"
+receive_data="https://api.telegram.org/bot"+str(apiKey)+"/GetUpdates?offset=-1&limit=1"
 
 
 # Messages
@@ -298,11 +292,11 @@ while True:
     # Read from SQLITE DB
     getId()
 
-    # POST MESSAGES only to my user or users in the whitelist - DEV
-    bot_chat="https://api.telegram.org/bot"+str(apiKey_dev)+"/sendMessage?chat_id="+str(userid)+"&text="
+    # POST MESSAGES only to my user or users in the whitelist
+    bot_chat="https://api.telegram.org/bot"+str(apiKey)+"/sendMessage?chat_id="+str(userid)+"&text="
 
-    # POST Messages to everyone else - DEV
-    bot_error="https://api.telegram.org/bot"+str(apiKey_dev)+"/sendMessage?chat_id="+str(chatid)+"&text="
+    # POST Messages to everyone else
+    bot_error="https://api.telegram.org/bot"+str(apiKey)+"/sendMessage?chat_id="+str(chatid)+"&text="
 
 
     # Checking if message has been sent
@@ -404,7 +398,7 @@ while True:
         #print(time)
         print(text)
         print(log_time)
-        print("This is the message that we are getting from the JSON DATA: "+str(message_id))
+        print("This is the message that we are getting from the API: "+str(message_id))
         print("This is the last line that was written to the DB: "+str(lastid[0]))
         #print(userid)
         #print(new_id)
