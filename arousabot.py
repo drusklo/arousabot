@@ -16,35 +16,50 @@ import json
 import configparser
 import getpass
 import sqlite3
+import argparse
 # Enable this in order to get Raspberry Pi Temp
 #from gpiozero import CPUTemperature
 #if os.system("uname -a | grep raspberry") == True:
 #else:
 #    pass
 
+# Arguments
+parser = argparse.ArgumentParser()
+parser.add_argument("-env", help="Specify your environment")
+args = parser.parse_args()
+if args.env == 'PROD':
+    print("This is PROD")
+    env = ''
+
+elif args.env == 'DEV':
+    print("This is DEV")
+    env = 'dev'
+    print(env)
 
 
-#Getting hostname
+
+
+# Getting hostname
 host = os.uname()[1]
 
-#Getting username
+# Getting username
 user = getpass.getuser()
 
 
-#Reading from the current path
+# Reading from the current path
 path = __location__ = os.path.realpath(
     os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
-#Define your config, db and log file here.
+# Define your config, db and log file here.
 config_file = path+'/arousabot.conf'
 #pathTodb = path+'/dbId.db'
 pathTolog = path+'/arousabot.log'
 
-#Database location
-db = sqlite3.connect(path+'/arousabot_dev.db')
+# Database location
+db = sqlite3.connect(path+'/arousabot_'+env+'.db')
 cursor = db.cursor()
 
-#Parsing config file
+# Parsing config file
 config = configparser.ConfigParser()
 config.read(config_file)
 apiKey = config['DEFAULT']['ApiKey']
@@ -57,10 +72,10 @@ btcholdings = float(config['CRYPTO']['btcholdings'])
 ethholdings = float(config['CRYPTO']['ethholdings'])
 
 
-#Whitelist
+# Whitelist
 whitelist=[myid,faid,alexid]
 
-#Command List
+# Command List
 ip = "/ip"
 temp = "/temp"
 all = "/all"
@@ -75,15 +90,15 @@ pcup = "/pcup"
 # If a command is not added here it will show as an error
 tinydict = {ip,mycrypto,mybtc,myeth,temp,help,hitchhiker1,hitchhiker2,pcup}
 
-#Getting IP
+# Getting IP
 #get_ip = requests.get('https://ipinfo.io/ip')
 
 
-#GET JSON DATA from Telegram API - DEV
+# GET JSON DATA from Telegram API - DEV
 receive_data="https://api.telegram.org/bot"+str(apiKey_dev)+"/GetUpdates?offset=-1&limit=1"
 
 
-#Messages
+# Messages
 #ip_message = 'This is your ip: '+get_ip.text.strip('\n')
 
 help_message = "I need somebody"
@@ -140,7 +155,7 @@ def holdings():
     #message = 'This is the value of all your holdings: '+str(all)+' €'
     message = 'This is the value of all your holdings:\n BTC: '+str(mybtc)+' € \n ETH: '+str(myeth)+' € \n TOTAL: '+str(all)+' €'
 
-#Logging function
+# Logging function
 def writeLog():
     logFile = open(pathTolog,'a')
     logFile.write(str(text))
@@ -152,7 +167,7 @@ def writeLog():
     logFile.close()
 
 
-#Read DB function
+# Read DB function
 def readDbFile():
     global pathTodb
     pathTodb = ''
@@ -162,31 +177,31 @@ def readDbFile():
     readlastline = dbFile.readline()
     dbFile.close()
 
-#Write DB function
+# Write DB function
 def writeDbFile():
     dbFile = open(pathTodb,'w')
     dbFile.write(str(message_id))
     dbFile.close()
 
-#SQLITE FUNCTIONS
+# SQLITE FUNCTIONS
 
-#Read from Sqlite DB
+# Read from Sqlite DB
 def getId():
     global lastid
     cursor.execute('SELECT messageid FROM messages order by date desc limit 1')
     lastid = cursor.fetchone()
     #print(int(lastid[0]))
 
-#Write Sqlite DB
+# Write Sqlite DB
 def writeId():
     cursor.execute('INSERT INTO messages(messageid, message, command, user, date) VALUES(?, ?, ?, ?, datetime())',(message_id, message, text, username, ))
     db.commit()
 
 
-#Enable Logging
+# Enable Logging
 #logging = 'false'
 
-#Enable verbose mode
+# Enable verbose mode
 verbose = 'true'
 
 
@@ -205,7 +220,7 @@ while True:
     #Misc Variables
     log_time = datetime.now()
     
-#Reading JSON Data
+# Reading JSON Data
     if 'message' in json_data['result'][0] and json_data['result'][0]['message']['chat']['type'] == 'group':
         print('This is anything in a group')
         if 'text' in json_data['result'][0]['message'] and 'username' in json_data['result'][0]['message']['from']:
@@ -277,28 +292,28 @@ while True:
     else:
         print('This is other type of message')
 
-    #Read DB File
+    # Read DB File
     #readDbFile()
 
     # Read from SQLITE DB
     getId()
 
-    #POST MESSAGES only to my user or users in the whitelist - DEV
+    # POST MESSAGES only to my user or users in the whitelist - DEV
     bot_chat="https://api.telegram.org/bot"+str(apiKey_dev)+"/sendMessage?chat_id="+str(userid)+"&text="
 
-    #POST Messages to everyone else - DEV
+    # POST Messages to everyone else - DEV
     bot_error="https://api.telegram.org/bot"+str(apiKey_dev)+"/sendMessage?chat_id="+str(chatid)+"&text="
 
 
-    #Checking if message has been sent
+    # Checking if message has been sent
     if int((lastid)[0]) == message_id:
         print("Checking SQLITE DB, Message has already been sent")
         time.sleep(2)
-    #Sending Messages 
+    # Sending Messages 
         
-    #Successful messages
+    # Successful messages
 
-    #Is my PC Up
+    # Is my PC Up
     if text == pcup and int((lastid)[0]) != message_id and userid in whitelist and chatid == botchat:
         ping = os.system('ping -c 3 192.168.42.5')
         if ping == 0:
@@ -309,7 +324,7 @@ while True:
         requests.post(bot_chat+ping_message)
         writeLog()
 
-    #Requesting a IP
+    # Requesting a IP
     if text == ip and int((lastid)[0]) != message_id and userid in whitelist and chatid == botchat:
         #requests.post(bot_chat+ip_message)
         get_ip = requests.get('https://ipinfo.io/ip')
@@ -320,7 +335,7 @@ while True:
 
     #print(host)
 
-    #Requesting temperature
+    # Requesting temperature
     if text == temp and host == 'raspberrypi' and int((lastid)[0]) != message_id and userid in whitelist and chatid == botchat:
         cpu = CPUTemperature()
         temp_message = 'CPU Temperature is: ' + str(cpu.temperature) + 'C'
@@ -328,51 +343,51 @@ while True:
         requests.post(bot_chat+temp_message)
         writeLog()
 
-    #Requesting all holdings
+    # Requesting all holdings
     if text == mycrypto and int((lastid)[0]) != message_id and userid in whitelist and chatid == botchat:
         holdings()
         send()
         writeLog()
 
-    #Requesting bitcoin
+    # Requesting bitcoin
     if text == mybtc and int((lastid)[0]) != message_id and userid in whitelist and chatid == botchat:
         crypto('btc')
         send()
         writeLog()
     
-    #Error temperature
+    # Error temperature
     if text == temp and host != 'raspberrypi' and int((lastid)[0]) != message_id and userid in whitelist and chatid == botchat:
         message = error_message4
         requests.post(bot_chat+error_message4)
         writeLog()
 
-    #Help Command
+    # Help Command
     if text == help and int((lastid)[0]) != message_id and userid in whitelist and chatid == botchat:
         message = help_message
         requests.post(bot_chat+help_message)
         writeLog()
 
-    #Easter Egg
+    # Easter Egg
     if (text == hitchhiker1 or text == hitchhiker2) and int((lastid)[0]) != message_id:
         message = hitchhiker_message
         requests.post(bot_chat+hitchhiker_message)
         writeLog()
 
 
-    #Errors
-    #Command Not Found
+    # Errors
+    # Command Not Found
     if text not in tinydict and int((lastid)[0]) != message_id and userid in whitelist and chatid == botchat:
         message = error_message2
         requests.post(bot_chat+error_message2)
         writeLog()
 
-    #User not allowed
+    # User not allowed
     if int((lastid)[0]) != message_id and userid != myid:
         message = error_message3
         requests.post(bot_error+error_message3)
         writeLog()
 
-    #Write DB File
+    # Write DB File
     #writeDbFile()
 
     # Write to SQlite DB and close connection
