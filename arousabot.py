@@ -33,7 +33,7 @@ user = getpass.getuser()
 path = __location__ = os.path.realpath(
     os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
-#Define your config, db and log file here
+#Define your config, db and log file here.
 config_file = path+'/arousabot.conf'
 #pathTodb = path+'/dbId.db'
 pathTolog = path+'/arousabot.log'
