@@ -14,6 +14,7 @@ import json
 import configparser
 import getpass
 import sqlite3
+import argparse
 # Enable this in order to get Raspberry Pi Temp
 #from gpiozero import CPUTemperature
 #if os.system("uname -a | grep raspberry") == True:
@@ -21,6 +22,7 @@ import sqlite3
 #    pass
 
 
+# Arguments
 
 #Getting hostname
 host = os.uname()[1]
