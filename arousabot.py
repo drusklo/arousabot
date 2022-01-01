@@ -417,4 +417,4 @@ while True:
         #print (json.dumps(json_data,ensure_ascii=False,indent=2))
 
     time.sleep(2)
-    #break
+    break
