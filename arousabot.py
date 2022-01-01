@@ -15,39 +15,91 @@ import configparser
 import getpass
 import sqlite3
 import argparse
-# Enable this in order to get Raspberry Pi Temp
-#from gpiozero import CPUTemperature
-#if os.system("uname -a | grep raspberry") == True:
-#else:
-#    pass
+from os.path import exists
 
+verbose = 'false'
 
 # Arguments
+parser = argparse.ArgumentParser()
+parser.add_argument('-env', '--environment', help='Specify your environment')
+parser.add_argument('-v', '--verbose', action="store_true", help='Verbose mode')
+args = parser.parse_args()
+if args.environment == 'PROD':
+    print('This is PROD')
+    env = ''
+    if args.verbose:
+        print('Verbose mode is enabled')
+        verbose = 'true'
+    else:
+        print('Verbose mode is off')
+elif args.environment == 'DEV':
+    print('This is DEV')
+    env = '_dev'
+    if args.verbose:
+        print('Verbose mode is enabled')
+        verbose = 'true'
+    else:
+        print('Verbose mode is off')
 
-#Getting hostname
+
+# Getting hostname
 host = os.uname()[1]
 
-#Getting username
+# Getting username
 user = getpass.getuser()
 
-
-#Reading from the current path
+# Reading from the current path
 path = __location__ = os.path.realpath(
     os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
-#Define your config, db and log file here.
+# Define your config, db and log file here.
 config_file = path+'/arousabot.conf'
 #pathTodb = path+'/dbId.db'
 pathTolog = path+'/arousabot.log'
 
-#Database location
-db = sqlite3.connect(path+'/arousabot.db')
+# Check if config file exists
+if exists(path+'/arousabot.conf'):
+    print('Config File Exists')
+else:
+    print('Config file not available, it needs to be created for the application to run')
+    quit()
+
+# Check if log exists, if not, create it
+if exists(path+'/arousabot.log'):
+    print('Log File Exists')
+else:
+    print('Cannot find the log file, creating a new one...')
+    logFile = open(pathTolog,'x')
+    logFile.close()
+
+
+# Initial DB set up
+def setupdb():
+    messageid = 1
+    message = 'This is my test message'
+    user = 'test'
+    command = '/test'
+    db = sqlite3.connect(path+'/arousabot'+env+'.db')
+    cursor = db.cursor()
+    cursor.execute('CREATE TABLE "messages" ("messageid"	INTEGER NOT NULL,"message"	TEXT,"command"	INTEGER,"user"	TEXT NOT NULL,"date"	TEXT NOT NULL,PRIMARY KEY("messageid"))')
+    cursor.execute('INSERT INTO messages(messageid, message, command, user, date) VALUES(?, ?, ?, ?, datetime())',(messageid, message, command, user, ))
+    db.commit()
+
+# Check if the DB exists
+if exists(path+'/arousabot'+env+'.db'):
+    print('DB Exists')
+else:
+    print('DB not available, creating...')
+    setupdb()
+
+# Database location
+db = sqlite3.connect(path+'/arousabot'+env+'.db')
 cursor = db.cursor()
 
-#Parsing config file
+# Parsing config file
 config = configparser.ConfigParser()
 config.read(config_file)
-apiKey = config['DEFAULT']['ApiKey']
+apiKey = config['DEFAULT']['ApiKey'+env]
 botchat = int(config['CHATS']['botchat'])
 myid = int(config['USERS']['myid'])
 alexid = int(config['USERS']['alexid'])
@@ -56,17 +108,12 @@ btcholdings = float(config['CRYPTO']['btcholdings'])
 ethholdings = float(config['CRYPTO']['ethholdings'])
 
 
-#Whitelist
+# Whitelist
 whitelist=[myid,faid,alexid]
 
-#Misc Variables
-log_time = datetime.now()
-
-
-#Command List
+# Command List
 ip = "/ip"
 temp = "/temp"
-all = "/all"
 mycrypto = "/crypto"
 mybtc = "/btc"
 myeth = "/eth"
@@ -78,27 +125,8 @@ pcup = "/pcup"
 # If a command is not added here it will show as an error
 tinydict = {ip,mycrypto,mybtc,myeth,temp,help,hitchhiker1,hitchhiker2,pcup}
 
-#Getting IP
-#get_ip = requests.get('https://ipinfo.io/ip')
-
-#GET JSON DATA from Telegram API
+# GET JSON DATA from Telegram API
 receive_data="https://api.telegram.org/bot"+str(apiKey)+"/GetUpdates?offset=-1&limit=1"
-
-
-#Messages
-#ip_message = 'This is your ip: '+get_ip.text.strip('\n')
-
-help_message = "I need somebody"
-
-hitchhiker_message = "42"
-
-error_message = "IP hasn't changed or the command is incorrect"
-
-error_message2 = "Command not found"
-
-error_message3 = "Trespassers will be shot, survivors will be shot again"
-
-error_message4 = "Unable to provide the requested information"
 
 # Variables for the Crypto Function
 currentprice = 'https://www.bitstamp.net/api/v2/ticker/'
@@ -129,8 +157,6 @@ def crypto(coin='btc'):
     else:
         print('Failure')
 
-
-
 # All my holdings
 def holdings():
     global message
@@ -139,10 +165,9 @@ def holdings():
     crypto('eth')
     myeth = operation
     all = mybtc + myeth
-    #message = 'This is the value of all your holdings: '+str(all)+' €'
     message = 'This is the value of all your holdings:\n BTC: '+str(mybtc)+' € \n ETH: '+str(myeth)+' € \n TOTAL: '+str(all)+' €'
 
-#Logging function
+# Logging function
 def writeLog():
     logFile = open(pathTolog,'a')
     logFile.write(str(text))
@@ -153,8 +178,7 @@ def writeLog():
     logFile.write(os.linesep)
     logFile.close()
 
-
-#Read DB function
+# Read DB function
 def readDbFile():
     global pathTodb
     pathTodb = ''
@@ -164,32 +188,25 @@ def readDbFile():
     readlastline = dbFile.readline()
     dbFile.close()
 
-#Write DB function
+# Write DB File function
 def writeDbFile():
     dbFile = open(pathTodb,'w')
     dbFile.write(str(message_id))
     dbFile.close()
 
-#SQLITE FUNCTIONS
+# SQLITE FUNCTIONS
 
-#Read from Sqlite DB
+# Read from Sqlite DB
 def getId():
     global lastid
     cursor.execute('SELECT messageid FROM messages order by date desc limit 1')
     lastid = cursor.fetchone()
-    #print(int(lastid[0]))
 
-#Write Sqlite DB
+# Write Sqlite DB
 def writeId():
+    print(message_id)
     cursor.execute('INSERT INTO messages(messageid, message, command, user, date) VALUES(?, ?, ?, ?, datetime())',(message_id, message, text, username, ))
     db.commit()
-
-
-#Enable Logging
-#logging = 'false'
-
-#Enable verbose mode
-verbose = 'true'
 
 
 while True:
@@ -200,137 +217,204 @@ while True:
     except requests.ConnectionError:
         pass
 
-    
-    
-#Reading JSON Data
-    try:
-        text = json_data['result'][0]['message']['text'] # This gets the message
-        message_id = json_data['result'][0]['message']['message_id'] # This gets the message_id to avoid re-sending data
-        userid = json_data['result'][0]['message']['from']['id'] # This gets the user_id
-        username = json_data['result'][0]['message']['from']['username'] # This gets the username
-        chatid = json_data['result'][0]['message']['chat']['id'] # This gets the chat_id
-    except KeyError: #This deals with the exceptions
-        print(datetime.now())
-        print("An Exception has ocurred, will keep going")
-        pass
+    editedMsgId = None
+    message_id = None
+    username = None
 
-    #Read DB File
+    #Misc Variables
+    log_time = datetime.now()
+    
+# Reading JSON Data
+    # This deals with normal messages in group chats
+    if 'message' in json_data['result'][0] and json_data['result'][0]['message']['chat']['type'] == 'group':
+        print('This is anything in a group')
+        if 'text' in json_data['result'][0]['message'] and 'username' in json_data['result'][0]['message']['from']:
+            print('This is a message')
+            text = json_data['result'][0]['message']['text'] # This gets the message
+            message_id = json_data['result'][0]['message']['message_id'] # This gets the message_id to avoid re-sending data
+            userid = json_data['result'][0]['message']['from']['id'] # This gets the user_id
+            username = json_data['result'][0]['message']['from']['username'] # This gets the username
+            first_name = json_data['result'][0]['message']['from']['first_name'] # This gets the first_name
+            chatid = json_data['result'][0]['message']['chat']['id'] # This gets the chat_id
+            chatName = json_data['result'][0]['message']['chat']['title'] # This gets the chat Name
+        # This is in case the user doesn't have a username
+        elif 'text' in json_data['result'][0]['message']:
+            print('This is a message')
+            text = json_data['result'][0]['message']['text'] # This gets the message
+            message_id = json_data['result'][0]['message']['message_id'] # This gets the message_id to avoid re-sending data
+            userid = json_data['result'][0]['message']['from']['id'] # This gets the user_id
+            first_name = json_data['result'][0]['message']['from']['first_name'] # This gets the first_name
+            chatid = json_data['result'][0]['message']['chat']['id'] # This gets the chat_id
+            chatName = json_data['result'][0]['message']['chat']['title'] # This gets the chat Name
+        else:
+            print('Whatever this is, I dont care for it')
+
+    # This deals with edited messages in group chats
+    elif 'edited_message' in json_data['result'][0] and json_data['result'][0]['edited_message']['chat']['type'] == 'group':
+        print('This is anything edited in a group')
+        if 'text' in json_data['result'][0]['edited_message']:
+            print('This is an edited message')
+            editedMsg = json_data['result'][0]['edited_message']['text'] # This gets the edited message text 
+            editedMsgId = json_data['result'][0]['edited_message']['message_id'] # This gets the edited message ID
+            editedMsgdate = json_data['result'][0]['edited_message']['edit_date'] # This gets the edited message date
+            date = json_data['result'][0]['edited_message']['date'] # This gets the original message date
+        else:
+            print('Whatever this is, I dont care for it')
+
+    # This deals with normal messages in private chats
+    elif 'message' in json_data['result'][0] and json_data['result'][0]['message']['chat']['type'] == 'private':
+        print('This is anything in a private chat')
+        if 'text' in json_data['result'][0]['message'] and 'username' in json_data['result'][0]['message']['from']:
+            print('This is a message')
+            text = json_data['result'][0]['message']['text'] # This gets the message
+            message_id = json_data['result'][0]['message']['message_id'] # This gets the message_id to avoid re-sending data
+            userid = json_data['result'][0]['message']['from']['id'] # This gets the user_id
+            username = json_data['result'][0]['message']['from']['username'] # This gets the username
+            first_name = json_data['result'][0]['message']['from']['first_name'] # This gets the first_name
+            chatid = json_data['result'][0]['message']['chat']['id'] # This gets the chat_id
+        elif 'text' in json_data['result'][0]['message']:
+            print('This is a message')
+            text = json_data['result'][0]['message']['text'] # This gets the message
+            message_id = json_data['result'][0]['message']['message_id'] # This gets the message_id to avoid re-sending data
+            userid = json_data['result'][0]['message']['from']['id'] # This gets the user_id
+            first_name = json_data['result'][0]['message']['from']['first_name'] # This gets the first_name
+            chatid = json_data['result'][0]['message']['chat']['id'] # This gets the chat_id
+        else:
+            print('Whatever this is, I dont care for it')
+
+    # This deals with edited messages in private chats
+    elif 'edited_message' in json_data['result'][0] and json_data['result'][0]['edited_message']['chat']['type'] == 'private':
+        print('This is anything edited in a private chat')
+        if 'text' in json_data['result'][0]['edited_message']:
+            print('This is an edited message')
+            editedMsg = json_data['result'][0]['edited_message']['text'] # This gets the edited message text 
+            editedMsgId = json_data['result'][0]['edited_message']['message_id'] # This gets the edited message ID
+            editedMsgdate = json_data['result'][0]['edited_message']['edit_date'] # This gets the edited message date
+            date = json_data['result'][0]['edited_message']['date'] # This gets the original message date
+        else:
+            print('Whatever this is, I dont care for it')
+    
+    else:
+        print('This is other type of message')
+
+    # Read DB File
     #readDbFile()
 
     # Read from SQLITE DB
     getId()
 
-    #POST MESSAGES only to my user or users in the whitelist
+    # POST MESSAGES only to my user or users in the whitelist
     bot_chat="https://api.telegram.org/bot"+str(apiKey)+"/sendMessage?chat_id="+str(userid)+"&text="
 
-    #POST Messages to everyone else
+    # POST Messages to everyone else
     bot_error="https://api.telegram.org/bot"+str(apiKey)+"/sendMessage?chat_id="+str(chatid)+"&text="
 
 
-    #Checking if message has been sent
+    # Checking if message has been sent
     if int((lastid)[0]) == message_id:
         print("Checking SQLITE DB, Message has already been sent")
         time.sleep(2)
-    #Sending Messages 
+    
+    # Sending Messages 
         
-    #Successful messages
+    # Successful messages
 
-    #Is my PC Up
+    # Is my PC Up
     if text == pcup and int((lastid)[0]) != message_id and userid in whitelist and chatid == botchat:
         ping = os.system('ping -c 3 192.168.42.5')
         if ping == 0:
-            ping_message = 'Your computer is up'
+            message = 'Your computer is up'
         else:
-            ping_message = 'Your computer seems to be down'
-        message = ping_message
-        requests.post(bot_chat+ping_message)
+            message = 'Your computer seems to be down'
+        send()
         writeLog()
 
-    #Requesting a IP
+    # Requesting a IP
     if text == ip and int((lastid)[0]) != message_id and userid in whitelist and chatid == botchat:
-        #requests.post(bot_chat+ip_message)
         get_ip = requests.get('https://ipinfo.io/ip')
-        ip_message = 'This is your ip: '+get_ip.text.strip('\n')
-        message = ip_message
-        requests.post(bot_chat+ip_message)
+        message = 'This is your ip: '+get_ip.text.strip('\n')
+        send()
         writeLog()
 
     #print(host)
 
-    #Requesting temperature
+    # Requesting temperature
     if text == temp and host == 'raspberrypi' and int((lastid)[0]) != message_id and userid in whitelist and chatid == botchat:
+        from gpiozero import CPUTemperature
         cpu = CPUTemperature()
-        temp_message = 'CPU Temperature is: ' + str(cpu.temperature) + 'C'
-        message = temp_message
-        requests.post(bot_chat+temp_message)
+        message = 'CPU Temperature is: ' + str(cpu.temperature) + 'C'
+        send()
         writeLog()
 
-    #Requesting all holdings
+    # Requesting all holdings
     if text == mycrypto and int((lastid)[0]) != message_id and userid in whitelist and chatid == botchat:
         holdings()
         send()
         writeLog()
 
-    #Requesting bitcoin
+    # Requesting bitcoin
     if text == mybtc and int((lastid)[0]) != message_id and userid in whitelist and chatid == botchat:
         crypto('btc')
         send()
         writeLog()
     
-    #Error temperature
+    # Requesting ethereum
+    if text == myeth and int((lastid)[0]) != message_id and userid in whitelist and chatid == botchat:
+        crypto('eth')
+        send()
+        writeLog()
+    
+    # Error temperature
     if text == temp and host != 'raspberrypi' and int((lastid)[0]) != message_id and userid in whitelist and chatid == botchat:
-        message = error_message4
-        requests.post(bot_chat+error_message4)
+        message = "Unable to provide the requested information"
+        send()
         writeLog()
 
-    #Help Command
+    # Help Command
     if text == help and int((lastid)[0]) != message_id and userid in whitelist and chatid == botchat:
-        message = help_message
-        requests.post(bot_chat+help_message)
+        message = "I need somebody"
+        send()
         writeLog()
 
-    #Easter Egg
+    # Easter Egg
     if (text == hitchhiker1 or text == hitchhiker2) and int((lastid)[0]) != message_id:
-        message = hitchhiker_message
-        requests.post(bot_chat+hitchhiker_message)
+        message = "42"
+        send()
         writeLog()
 
-
-    #Errors
-    #Command Not Found
+    # Errors
+    # Command Not Found
     if text not in tinydict and int((lastid)[0]) != message_id and userid in whitelist and chatid == botchat:
-        message = error_message2
-        requests.post(bot_chat+error_message2)
+        message = "Command not found"
+        send()
         writeLog()
 
-    #User not allowed
-    if int((lastid)[0]) != message_id and userid != myid:
-        message = error_message3
-        requests.post(bot_error+error_message3)
+    # User not allowed
+    if int((lastid)[0]) != message_id and userid not in whitelist:
+        message = "Trespassers will be shot, survivors will be shot again"        
+        send()
         writeLog()
 
-    #Write DB File
+    # Write DB File
     #writeDbFile()
 
     # Write to SQlite DB and close connection
     if message_id != int((lastid)[0]):
+        print(lastid)
+        print(message_id)
         writeId()
         print('Adding record to DB')
     else:
         print('Record already exists')
 
-    #db.close()
-
     if verbose == "true":
         #print(json_data)
-        #print(time)
         print(text)
         print(log_time)
-        print("This is the message that we are getting from the JSON DATA: "+str(message_id))
+        print("This is the message that we are getting from the API: "+str(message_id))
         print("This is the last line that was written to the DB: "+str(lastid[0]))
-        #print(userid)
-        #print(new_id)
+        print('UserId: '+str(userid))
         #print (json.dumps(json_data,ensure_ascii=False,indent=2))
 
     time.sleep(2)
-    #break
+    break
