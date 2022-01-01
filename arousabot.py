@@ -54,7 +54,6 @@ path = __location__ = os.path.realpath(
 
 # Define your config, db and log file here.
 config_file = path+'/arousabot.conf'
-#pathTodb = path+'/dbId.db'
 pathTolog = path+'/arousabot.log'
 
 # Check if config file exists
@@ -178,24 +177,6 @@ def writeLog():
     logFile.write(os.linesep)
     logFile.close()
 
-# Read DB function
-def readDbFile():
-    global pathTodb
-    pathTodb = ''
-    global dbFile
-    dbFile = open(pathTodb,'r')
-    global readlastline
-    readlastline = dbFile.readline()
-    dbFile.close()
-
-# Write DB File function
-def writeDbFile():
-    dbFile = open(pathTodb,'w')
-    dbFile.write(str(message_id))
-    dbFile.close()
-
-# SQLITE FUNCTIONS
-
 # Read from Sqlite DB
 def getId():
     global lastid
@@ -297,9 +278,6 @@ while True:
     else:
         print('This is other type of message')
 
-    # Read DB File
-    #readDbFile()
-
     # Read from SQLITE DB
     getId()
 
@@ -394,9 +372,6 @@ while True:
         message = "Trespassers will be shot, survivors will be shot again"        
         send()
         writeLog()
-
-    # Write DB File
-    #writeDbFile()
 
     # Write to SQlite DB and close connection
     if message_id != int((lastid)[0]):
