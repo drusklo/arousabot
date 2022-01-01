@@ -25,10 +25,10 @@ verbose = 'false'
 
 # Arguments
 parser = argparse.ArgumentParser()
-parser.add_argument('-env', help='Specify your environment')
+parser.add_argument('-env', '--environment', help='Specify your environment')
 parser.add_argument('-v', '--verbose', action="store_true", help='Verbose mode')
 args = parser.parse_args()
-if args.env == 'PROD':
+if args.environment == 'PROD':
     print('This is PROD')
     env = ''
     if args.verbose:
@@ -36,7 +36,7 @@ if args.env == 'PROD':
         verbose = 'true'
     else:
         print('Verbose mode is off')
-elif args.env == 'DEV':
+elif args.environment == 'DEV':
     print('This is DEV')
     env = '_dev'
     if args.verbose:
@@ -175,21 +175,11 @@ def getId():
     global lastid
     cursor.execute('SELECT messageid FROM messages order by date desc limit 1')
     lastid = cursor.fetchone()
-    db.close()
-    #print(int(lastid[0]))
 
 # Write Sqlite DB
 def writeId():
     cursor.execute('INSERT INTO messages(messageid, message, command, user, date) VALUES(?, ?, ?, ?, datetime())',(message_id, message, text, username, ))
     db.commit()
-    db.close()
-
-
-# Enable Logging
-#logging = 'false'
-
-# Enable verbose mode
-#verbose = 'true'
 
 
 while True:
@@ -315,7 +305,6 @@ while True:
 
     # Requesting a IP
     if text == ip and int((lastid)[0]) != message_id and userid in whitelist and chatid == botchat:
-        #requests.post(bot_chat+ip_message)
         get_ip = requests.get('https://ipinfo.io/ip')
         ip_message = 'This is your ip: '+get_ip.text.strip('\n')
         message = ip_message
@@ -395,8 +384,6 @@ while True:
         print('Adding record to DB')
     else:
         print('Record already exists')
-
-    #db.close()
 
     if verbose == "true":
         #print(json_data)
