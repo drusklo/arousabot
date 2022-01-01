@@ -15,11 +15,7 @@ import configparser
 import getpass
 import sqlite3
 import argparse
-# Enable this in order to get Raspberry Pi Temp
-#from gpiozero import CPUTemperature
-#if os.system("uname -a | grep raspberry") == True:
-#else:
-#    pass
+from os.path import exists
 
 verbose = 'false'
 
@@ -52,7 +48,6 @@ host = os.uname()[1]
 # Getting username
 user = getpass.getuser()
 
-
 # Reading from the current path
 path = __location__ = os.path.realpath(
     os.path.join(os.getcwd(), os.path.dirname(__file__)))
@@ -61,6 +56,27 @@ path = __location__ = os.path.realpath(
 config_file = path+'/arousabot.conf'
 #pathTodb = path+'/dbId.db'
 pathTolog = path+'/arousabot.log'
+
+# Initial DB set up
+def setupdb():
+    messageid = 1
+    message = 'This is my test message'
+    user = 'test'
+    command = '/test'
+    db = sqlite3.connect(path+'/arousabot'+env+'.db')
+    cursor = db.cursor()
+    cursor.execute('CREATE TABLE "messages" ("messageid"	INTEGER NOT NULL,"message"	TEXT,"command"	INTEGER,"user"	TEXT NOT NULL,"date"	TEXT NOT NULL,PRIMARY KEY("messageid"))')
+    cursor.execute('INSERT INTO messages(messageid, message, command, user, date) VALUES(?, ?, ?, ?, datetime())',(messageid, message, command, user, ))
+    db.commit()
+
+# Check if the DB exists
+if exists(path+'/arousabot'+env+'.db'):
+    print('DB Exists')
+else:
+    print('DB not available, creating...')
+    setupdb()
+
+    
 
 # Database location
 db = sqlite3.connect(path+'/arousabot'+env+'.db')
@@ -84,7 +100,6 @@ whitelist=[myid,faid,alexid]
 # Command List
 ip = "/ip"
 temp = "/temp"
-all = "/all"
 mycrypto = "/crypto"
 mybtc = "/btc"
 myeth = "/eth"
@@ -128,8 +143,6 @@ def crypto(coin='btc'):
     else:
         print('Failure')
 
-
-
 # All my holdings
 def holdings():
     global message
@@ -150,7 +163,6 @@ def writeLog():
     logFile.write(str(json_data))
     logFile.write(os.linesep)
     logFile.close()
-
 
 # Read DB function
 def readDbFile():
@@ -178,6 +190,7 @@ def getId():
 
 # Write Sqlite DB
 def writeId():
+    print(message_id)
     cursor.execute('INSERT INTO messages(messageid, message, command, user, date) VALUES(?, ?, ?, ?, datetime())',(message_id, message, text, username, ))
     db.commit()
 
@@ -296,29 +309,27 @@ while True:
     if text == pcup and int((lastid)[0]) != message_id and userid in whitelist and chatid == botchat:
         ping = os.system('ping -c 3 192.168.42.5')
         if ping == 0:
-            ping_message = 'Your computer is up'
+            message = 'Your computer is up'
         else:
-            ping_message = 'Your computer seems to be down'
-        message = ping_message
-        requests.post(bot_chat+ping_message)
+            message = 'Your computer seems to be down'
+        send()
         writeLog()
 
     # Requesting a IP
     if text == ip and int((lastid)[0]) != message_id and userid in whitelist and chatid == botchat:
         get_ip = requests.get('https://ipinfo.io/ip')
-        ip_message = 'This is your ip: '+get_ip.text.strip('\n')
-        message = ip_message
-        requests.post(bot_chat+ip_message)
+        message = 'This is your ip: '+get_ip.text.strip('\n')
+        send()
         writeLog()
 
     #print(host)
 
     # Requesting temperature
     if text == temp and host == 'raspberrypi' and int((lastid)[0]) != message_id and userid in whitelist and chatid == botchat:
+        from gpiozero import CPUTemperature
         cpu = CPUTemperature()
-        temp_message = 'CPU Temperature is: ' + str(cpu.temperature) + 'C'
-        message = temp_message
-        requests.post(bot_chat+temp_message)
+        message = 'CPU Temperature is: ' + str(cpu.temperature) + 'C'
+        send()
         writeLog()
 
     # Requesting all holdings
@@ -341,38 +352,33 @@ while True:
     
     # Error temperature
     if text == temp and host != 'raspberrypi' and int((lastid)[0]) != message_id and userid in whitelist and chatid == botchat:
-        error_message4 = "Unable to provide the requested information"
-        message = error_message4
-        requests.post(bot_chat+error_message4)
+        message = "Unable to provide the requested information"
+        send()
         writeLog()
 
     # Help Command
     if text == help and int((lastid)[0]) != message_id and userid in whitelist and chatid == botchat:
-        help_message = "I need somebody"
-        message = help_message
-        requests.post(bot_chat+help_message)
+        message = "I need somebody"
+        send()
         writeLog()
 
     # Easter Egg
     if (text == hitchhiker1 or text == hitchhiker2) and int((lastid)[0]) != message_id:
-        hitchhiker_message = "42"
-        message = hitchhiker_message
-        requests.post(bot_chat+hitchhiker_message)
+        message = "42"
+        send()
         writeLog()
 
     # Errors
     # Command Not Found
     if text not in tinydict and int((lastid)[0]) != message_id and userid in whitelist and chatid == botchat:
-        error_message2 = "Command not found"
-        message = error_message2
-        requests.post(bot_chat+error_message2)
+        message = "Command not found"
+        send()
         writeLog()
 
     # User not allowed
     if int((lastid)[0]) != message_id and userid not in whitelist:
-        error_message3 = "Trespassers will be shot, survivors will be shot again"
-        message = error_message3
-        requests.post(bot_error+error_message3)
+        message = "Trespassers will be shot, survivors will be shot again"        
+        send()
         writeLog()
 
     # Write DB File
@@ -380,6 +386,8 @@ while True:
 
     # Write to SQlite DB and close connection
     if message_id != int((lastid)[0]):
+        print(lastid)
+        print(message_id)
         writeId()
         print('Adding record to DB')
     else:
@@ -395,4 +403,4 @@ while True:
         #print (json.dumps(json_data,ensure_ascii=False,indent=2))
 
     time.sleep(2)
-    break
+    #break
