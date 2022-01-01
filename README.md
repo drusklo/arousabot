@@ -2,6 +2,10 @@
 
 ## Changelog
 
+### 01/01/2022
+
+* Added capacity to pass arguments
+
 ### 04/06/2021
 
 * The bot now writes/reads the messageid, user, command, message and date to a DB
