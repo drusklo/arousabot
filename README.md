@@ -40,8 +40,3 @@
 * Add option to run the backup manually
 * Add RemindMe function
 * Use the logging python module instead of creating own logging function
-
-
-## Bugs
-
-If the dbId.db is empty the whole process fails - This is solved now as we are using a SQLITE db
