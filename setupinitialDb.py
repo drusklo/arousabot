@@ -15,7 +15,7 @@ path = __location__ = os.path.realpath(
     os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
 #Database location
-db = sqlite3.connect(path+'/arousabotInitial.db')
+db = sqlite3.connect(path+'/arousabot.db')
 cursor = db.cursor()
 
 def createDB():
