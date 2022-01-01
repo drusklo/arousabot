@@ -57,6 +57,22 @@ config_file = path+'/arousabot.conf'
 #pathTodb = path+'/dbId.db'
 pathTolog = path+'/arousabot.log'
 
+# Check if config file exists
+if exists(path+'/arousabot.conf'):
+    print('Config File Exists')
+else:
+    print('Config file not available, it needs to be created for the application to run')
+    quit()
+
+# Check if log exists, if not, create it
+if exists(path+'/arousabot.log'):
+    print('Log File Exists')
+else:
+    print('Cannot find the log file, creating a new one...')
+    logFile = open(pathTolog,'x')
+    logFile.close()
+
+
 # Initial DB set up
 def setupdb():
     messageid = 1
