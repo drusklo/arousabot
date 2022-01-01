@@ -76,8 +76,6 @@ else:
     print('DB not available, creating...')
     setupdb()
 
-    
-
 # Database location
 db = sqlite3.connect(path+'/arousabot'+env+'.db')
 cursor = db.cursor()
