@@ -218,6 +218,7 @@ while True:
             first_name = json_data['result'][0]['message']['from']['first_name'] # This gets the first_name
             chatid = json_data['result'][0]['message']['chat']['id'] # This gets the chat_id
             chatName = json_data['result'][0]['message']['chat']['title'] # This gets the chat Name
+            chatType = json_data['result'][0]['message']['chat']['type'] # This gets the type of chat
         # This is in case the user doesn't have a username
         elif 'text' in json_data['result'][0]['message']:
             print('This is a message')
@@ -227,6 +228,7 @@ while True:
             first_name = json_data['result'][0]['message']['from']['first_name'] # This gets the first_name
             chatid = json_data['result'][0]['message']['chat']['id'] # This gets the chat_id
             chatName = json_data['result'][0]['message']['chat']['title'] # This gets the chat Name
+            chatType = json_data['result'][0]['message']['chat']['type'] # This gets the type of chat
         else:
             print('Whatever this is, I dont care for it')
 
@@ -239,6 +241,7 @@ while True:
             editedMsgId = json_data['result'][0]['edited_message']['message_id'] # This gets the edited message ID
             editedMsgdate = json_data['result'][0]['edited_message']['edit_date'] # This gets the edited message date
             date = json_data['result'][0]['edited_message']['date'] # This gets the original message date
+            chatType = json_data['result'][0]['message']['chat']['type'] # This gets the type of chat
         else:
             print('Whatever this is, I dont care for it')
 
@@ -253,6 +256,7 @@ while True:
             username = json_data['result'][0]['message']['from']['username'] # This gets the username
             first_name = json_data['result'][0]['message']['from']['first_name'] # This gets the first_name
             chatid = json_data['result'][0]['message']['chat']['id'] # This gets the chat_id
+            chatType = json_data['result'][0]['message']['chat']['type'] # This gets the type of chat
         elif 'text' in json_data['result'][0]['message']:
             print('This is a message')
             text = json_data['result'][0]['message']['text'] # This gets the message
@@ -260,6 +264,7 @@ while True:
             userid = json_data['result'][0]['message']['from']['id'] # This gets the user_id
             first_name = json_data['result'][0]['message']['from']['first_name'] # This gets the first_name
             chatid = json_data['result'][0]['message']['chat']['id'] # This gets the chat_id
+            chatType = json_data['result'][0]['message']['chat']['type'] # This gets the type of chat
         else:
             print('Whatever this is, I dont care for it')
 
@@ -272,6 +277,7 @@ while True:
             editedMsgId = json_data['result'][0]['edited_message']['message_id'] # This gets the edited message ID
             editedMsgdate = json_data['result'][0]['edited_message']['edit_date'] # This gets the edited message date
             date = json_data['result'][0]['edited_message']['date'] # This gets the original message date
+            chatType = json_data['result'][0]['message']['chat']['type'] # This gets the type of chat
         else:
             print('Whatever this is, I dont care for it')
     
@@ -364,6 +370,12 @@ while True:
     # Command Not Found
     if text not in tinydict and int((lastid)[0]) != message_id and userid in whitelist and chatid == botchat:
         message = "Command not found"
+        send()
+        writeLog()
+
+    # Any unsuported message
+    if text not in tinydict and int((lastid)[0]) != message_id and chatType == 'group':
+        message = "Someone is adding you to a group"
         send()
         writeLog()
 
