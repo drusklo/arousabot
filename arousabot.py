@@ -205,99 +205,99 @@ while True:
     chatType = None
     message = 'no message'
     userid = None
-    chatid = None
+    #chatid = None
 
     #Misc Variables
     log_time = datetime.now()
     
 # Reading JSON Data
     # This deals with normal messages in group chats
-    if 0 in json_data['result']:
-        if 'message' in json_data['result'][0] and json_data['result'][0]['message']['chat']['type'] == 'group':
-            print('This is anything in a group')
-            if 'text' in json_data['result'][0]['message'] and 'username' in json_data['result'][0]['message']['from']:
-                print('This is a message')
-                text = json_data['result'][0]['message']['text'] # This gets the message
-                message_id = json_data['result'][0]['message']['message_id'] # This gets the message_id to avoid re-sending data
-                userid = json_data['result'][0]['message']['from']['id'] # This gets the user_id
-                username = json_data['result'][0]['message']['from']['username'] # This gets the username
-                first_name = json_data['result'][0]['message']['from']['first_name'] # This gets the first_name
-                chatid = json_data['result'][0]['message']['chat']['id'] # This gets the chat_id
-                chatName = json_data['result'][0]['message']['chat']['title'] # This gets the chat Name
-                chatType = json_data['result'][0]['message']['chat']['type'] # This gets the type of chat
-            # This is in case the user doesn't have a username
-            elif 'text' in json_data['result'][0]['message']:
-                print('This is a message')
-                text = json_data['result'][0]['message']['text'] # This gets the message
-                message_id = json_data['result'][0]['message']['message_id'] # This gets the message_id to avoid re-sending data
-                userid = json_data['result'][0]['message']['from']['id'] # This gets the user_id
-                first_name = json_data['result'][0]['message']['from']['first_name'] # This gets the first_name
-                chatid = json_data['result'][0]['message']['chat']['id'] # This gets the chat_id
-                chatName = json_data['result'][0]['message']['chat']['title'] # This gets the chat Name
-                chatType = json_data['result'][0]['message']['chat']['type'] # This gets the type of chat
-            elif 'new_chat_participant' in json_data['result'][0]['message']:
-                print('Ignoring this')
-                message_id = json_data['result'][0]['message']['message_id'] # This gets the message_id to avoid re-sending data
-                userid = json_data['result'][0]['message']['from']['id'] # This gets the user_id
-                chatid = json_data['result'][0]['message']['chat']['id'] # This gets the chat_id
-                username = json_data['result'][0]['message']['from']['username']
-            elif 'left_chat_participant' in json_data['result'][0]['message']:
-                print('Ignoring this')
-                message_id = json_data['result'][0]['message']['message_id'] # This gets the message_id to avoid re-sending data
-                userid = json_data['result'][0]['message']['from']['id'] # This gets the user_id
-                chatid = json_data['result'][0]['message']['chat']['id'] # This gets the chat_id
-                username = json_data['result'][0]['message']['from']['username']
-        
+    if 'message' in json_data['result'][0] and json_data['result'][0]['message']['chat']['type'] == 'group':
+        print('This is anything in a group')
+        if 'text' in json_data['result'][0]['message'] and 'username' in json_data['result'][0]['message']['from']:
+            print('This is a message')
+            text = json_data['result'][0]['message']['text'] # This gets the message
+            message_id = json_data['result'][0]['message']['message_id'] # This gets the message_id to avoid re-sending data
+            userid = json_data['result'][0]['message']['from']['id'] # This gets the user_id
+            username = json_data['result'][0]['message']['from']['username'] # This gets the username
+            first_name = json_data['result'][0]['message']['from']['first_name'] # This gets the first_name
+            chatid = json_data['result'][0]['message']['chat']['id'] # This gets the chat_id
+            chatName = json_data['result'][0]['message']['chat']['title'] # This gets the chat Name
+            chatType = json_data['result'][0]['message']['chat']['type'] # This gets the type of chat
+        # This is in case the user doesn't have a username
+        elif 'text' in json_data['result'][0]['message']:
+            print('This is a message')
+            text = json_data['result'][0]['message']['text'] # This gets the message
+            message_id = json_data['result'][0]['message']['message_id'] # This gets the message_id to avoid re-sending data
+            userid = json_data['result'][0]['message']['from']['id'] # This gets the user_id
+            first_name = json_data['result'][0]['message']['from']['first_name'] # This gets the first_name
+            chatid = json_data['result'][0]['message']['chat']['id'] # This gets the chat_id
+            chatName = json_data['result'][0]['message']['chat']['title'] # This gets the chat Name
+            chatType = json_data['result'][0]['message']['chat']['type'] # This gets the type of chat
+        elif 'new_chat_participant' in json_data['result'][0]['message']:
+            print('Ignoring this')
+            message_id = json_data['result'][0]['message']['message_id'] # This gets the message_id to avoid re-sending data
+            userid = json_data['result'][0]['message']['from']['id'] # This gets the user_id
+            chatid = json_data['result'][0]['message']['chat']['id'] # This gets the chat_id
+            username = json_data['result'][0]['message']['from']['username']
+        elif 'left_chat_participant' in json_data['result'][0]['message']:
+            print('Ignoring this')
+            message_id = json_data['result'][0]['message']['message_id'] # This gets the message_id to avoid re-sending data
+            userid = json_data['result'][0]['message']['from']['id'] # This gets the user_id
+            chatid = json_data['result'][0]['message']['chat']['id'] # This gets the chat_id
+            username = json_data['result'][0]['message']['from']['username']
+    
         elif 'old_chat_member' in json_data['result'][0]['my_chat_member']:
             print('Ignoring this')
             userid = json_data['result'][0]['my_chat_member']['from']['id'] # This gets the user_id
             chatid = json_data['result'][0]['my_chat_member']['chat']['id'] # This gets the chat_id
             username = json_data['result'][0]['my_chat_member']['from']['username']
+
+    # This deals with edited messages in group chats
+    elif 'edited_message' in json_data['result'][0] and json_data['result'][0]['edited_message']['chat']['type'] == 'group':
+        print('This is anything edited in a group')
+        if 'text' in json_data['result'][0]['edited_message']:
+            print('This is an edited message')
+            editedMsg = json_data['result'][0]['edited_message']['text'] # This gets the edited message text 
+            editedMsgId = json_data['result'][0]['edited_message']['message_id'] # This gets the edited message ID
+            editedMsgdate = json_data['result'][0]['edited_message']['edit_date'] # This gets the edited message date
+            date = json_data['result'][0]['edited_message']['date'] # This gets the original message date
+            chatType = json_data['result'][0]['message']['chat']['type'] # This gets the type of chat
+
     
-        # This deals with edited messages in group chats
-        elif 'edited_message' in json_data['result'][0] and json_data['result'][0]['edited_message']['chat']['type'] == 'group':
-            print('This is anything edited in a group')
-            if 'text' in json_data['result'][0]['edited_message']:
-                print('This is an edited message')
-                editedMsg = json_data['result'][0]['edited_message']['text'] # This gets the edited message text 
-                editedMsgId = json_data['result'][0]['edited_message']['message_id'] # This gets the edited message ID
-                editedMsgdate = json_data['result'][0]['edited_message']['edit_date'] # This gets the edited message date
-                date = json_data['result'][0]['edited_message']['date'] # This gets the original message date
-                chatType = json_data['result'][0]['message']['chat']['type'] # This gets the type of chat
-    
-        
-        # This deals with normal messages in private chats
-        elif 'message' in json_data['result'][0] and json_data['result'][0]['message']['chat']['type'] == 'private':
-            print('This is anything in a private chat')
-            if 'text' in json_data['result'][0]['message'] and 'username' in json_data['result'][0]['message']['from']:
-                print('This is a message')
-                text = json_data['result'][0]['message']['text'] # This gets the message
-                message_id = json_data['result'][0]['message']['message_id'] # This gets the message_id to avoid re-sending data
-                userid = json_data['result'][0]['message']['from']['id'] # This gets the user_id
-                username = json_data['result'][0]['message']['from']['username'] # This gets the username
-                first_name = json_data['result'][0]['message']['from']['first_name'] # This gets the first_name
-                chatid = json_data['result'][0]['message']['chat']['id'] # This gets the chat_id
-                chatType = json_data['result'][0]['message']['chat']['type'] # This gets the type of chat
-            elif 'text' in json_data['result'][0]['message']:
-                print('This is a message')
-                text = json_data['result'][0]['message']['text'] # This gets the message
-                message_id = json_data['result'][0]['message']['message_id'] # This gets the message_id to avoid re-sending data
-                userid = json_data['result'][0]['message']['from']['id'] # This gets the user_id
-                first_name = json_data['result'][0]['message']['from']['first_name'] # This gets the first_name
-                chatid = json_data['result'][0]['message']['chat']['id'] # This gets the chat_id
-                chatType = json_data['result'][0]['message']['chat']['type'] # This gets the type of chat
-    
-    
-        # This deals with edited messages in private chats
-        elif 'edited_message' in json_data['result'][0] and json_data['result'][0]['edited_message']['chat']['type'] == 'private':
-            print('This is anything edited in a private chat')
-            if 'text' in json_data['result'][0]['edited_message']:
-                print('This is an edited message')
-                editedMsg = json_data['result'][0]['edited_message']['text'] # This gets the edited message text 
-                editedMsgId = json_data['result'][0]['edited_message']['message_id'] # This gets the edited message ID
-                editedMsgdate = json_data['result'][0]['edited_message']['edit_date'] # This gets the edited message date
-                date = json_data['result'][0]['edited_message']['date'] # This gets the original message date
-                chatType = json_data['result'][0]['message']['chat']['type'] # This gets the type of chat
+    # This deals with normal messages in private chats
+    elif 'message' in json_data['result'][0] and json_data['result'][0]['message']['chat']['type'] == 'private':
+        print('This is anything in a private chat')
+        if 'text' in json_data['result'][0]['message'] and 'username' in json_data['result'][0]['message']['from']:
+            print('This is a message')
+            text = json_data['result'][0]['message']['text'] # This gets the message
+            message_id = json_data['result'][0]['message']['message_id'] # This gets the message_id to avoid re-sending data
+            userid = json_data['result'][0]['message']['from']['id'] # This gets the user_id
+            username = json_data['result'][0]['message']['from']['username'] # This gets the username
+            first_name = json_data['result'][0]['message']['from']['first_name'] # This gets the first_name
+            chatid = json_data['result'][0]['message']['chat']['id'] # This gets the chat_id
+            chatType = json_data['result'][0]['message']['chat']['type'] # This gets the type of chat
+        elif 'text' in json_data['result'][0]['message']:
+            print('This is a message')
+            text = json_data['result'][0]['message']['text'] # This gets the message
+            message_id = json_data['result'][0]['message']['message_id'] # This gets the message_id to avoid re-sending data
+            userid = json_data['result'][0]['message']['from']['id'] # This gets the user_id
+            first_name = json_data['result'][0]['message']['from']['first_name'] # This gets the first_name
+            chatid = json_data['result'][0]['message']['chat']['id'] # This gets the chat_id
+            chatType = json_data['result'][0]['message']['chat']['type'] # This gets the type of chat
+
+
+    # This deals with edited messages in private chats
+    elif 'edited_message' in json_data['result'][0] and json_data['result'][0]['edited_message']['chat']['type'] == 'private':
+        print('This is anything edited in a private chat')
+        if 'text' in json_data['result'][0]['edited_message']:
+            print('This is an edited message')
+            editedMsg = json_data['result'][0]['edited_message']['text'] # This gets the edited message text 
+            editedMsgId = json_data['result'][0]['edited_message']['message_id'] # This gets the edited message ID
+            editedMsgdate = json_data['result'][0]['edited_message']['edit_date'] # This gets the edited message date
+            date = json_data['result'][0]['edited_message']['date'] # This gets the original message date
+            chatid = json_data['result'][0]['edited_message']['chat']['id'] # This gets the chat_id
+            chatType = json_data['result'][0]['edited_message']['chat']['type'] # This gets the type of chat
 
 
     # Read from SQLITE DB
