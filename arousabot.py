@@ -193,7 +193,7 @@ def writeId():
 while True:
     
     try:
-        new_request = requests.get(receive_data) 
+        new_request = requests.get(receive_data)
         json_data = new_request.json()
     except requests.ConnectionError:
         pass
@@ -201,6 +201,9 @@ while True:
     editedMsgId = None
     message_id = None
     username = None
+    text = None
+    chatType = None
+    message = 'dummy message'
 
     #Misc Variables
     log_time = datetime.now()
@@ -229,6 +232,12 @@ while True:
             chatid = json_data['result'][0]['message']['chat']['id'] # This gets the chat_id
             chatName = json_data['result'][0]['message']['chat']['title'] # This gets the chat Name
             chatType = json_data['result'][0]['message']['chat']['type'] # This gets the type of chat
+        elif 'left_chat_participant' in json_data['result'][0]['message']:
+            print('Ignoring this')
+            message_id = json_data['result'][0]['message']['message_id'] # This gets the message_id to avoid re-sending data
+            userid = json_data['result'][0]['message']['from']['id'] # This gets the user_id
+            chatid = json_data['result'][0]['message']['chat']['id'] # This gets the chat_id
+            username = json_data['result'][0]['message']['from']['username']
         else:
             print('Whatever this is, I dont care for it')
 
@@ -244,7 +253,7 @@ while True:
             chatType = json_data['result'][0]['message']['chat']['type'] # This gets the type of chat
         else:
             print('Whatever this is, I dont care for it')
-
+    
     # This deals with normal messages in private chats
     elif 'message' in json_data['result'][0] and json_data['result'][0]['message']['chat']['type'] == 'private':
         print('This is anything in a private chat')
@@ -381,14 +390,14 @@ while True:
 
     # User not allowed
     if int((lastid)[0]) != message_id and userid not in whitelist:
-        message = "Trespassers will be shot, survivors will be shot again"        
+        message = "Trespassers will be shot, survivors will be shot again"
         send()
         writeLog()
 
     # Write to SQlite DB and close connection
     if message_id != int((lastid)[0]):
         print(lastid)
-        print(message_id)
+        #print(message_id)
         writeId()
         print('Adding record to DB')
     else:
