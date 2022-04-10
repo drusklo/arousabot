@@ -163,8 +163,11 @@ def holdings():
     mybtc = operation
     crypto('eth')
     myeth = operation
+    taxesBtc = int((mybtc - (19 / 100) * mybtc))
+    taxesEth = int((myeth - (19 / 100) * myeth))
+    afterTaxes = taxesBtc + taxesEth
     all = mybtc + myeth
-    message = 'This is the value of all your holdings:\n BTC: '+str(mybtc)+' € \n ETH: '+str(myeth)+' € \n TOTAL: '+str(all)+' €'
+    message = 'This is the value of all your holdings:\n BTC: '+str(mybtc)+' € \n BTC After Tax: '+str(taxesBtc)+' € \n ETH: '+str(myeth)+' € \n ETH After Tax: '+str(taxesEth)+' € \n TOTAL: '+str(all)+' € \n After Tax: '+str(afterTaxes)+' €'
 
 # Logging function
 def writeLog():
