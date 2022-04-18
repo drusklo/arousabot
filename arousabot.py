@@ -196,7 +196,7 @@ def writeId():
 
 # Check Backup
 def checkBackup():
-    global backupCompleted
+    global backupSuccess
     url = 'http://192.168.42.5:8080/data.json'
     new_request = requests.get(url)
     json_data = new_request.json()
@@ -208,10 +208,10 @@ def checkBackup():
     print(backupDate)
     if backup == 'N' and currentDate > backupDate:
         print('Backup was not done')
-        backupSuccess == 'N'
+        backupSuccess = 'N'
     elif backup == 'Y' and currentDate > backupDate:
         print('Backup has been completed')
-        backupSuccess == 'Y'
+        backupSuccess = 'Y'
 
 checkBackup()
 
