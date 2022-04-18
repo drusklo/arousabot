@@ -8,6 +8,7 @@ import subprocess
 import time
 import datetime
 from datetime import datetime
+from datetime import date
 import sys
 import requests
 import json
@@ -193,6 +194,27 @@ def writeId():
     db.commit()
 
 
+# Check Backup
+def checkBackup():
+    global backupCompleted
+    url = 'http://192.168.42.5:8080/data.json'
+    new_request = requests.get(url)
+    json_data = new_request.json()
+    backup = json_data[0]['Backup']
+    dt = datetime.now()
+    currentDate= dt.strftime('%Y-%m-%d %H:%M')
+    print(currentDate)
+    backupDate = dt.strftime('%Y-%m-%d 13:00')
+    print(backupDate)
+    if backup == 'N' and currentDate > backupDate:
+        print('Backup was not done')
+        backupSuccess == 'N'
+    elif backup == 'Y' and currentDate > backupDate:
+        print('Backup has been completed')
+        backupSuccess == 'Y'
+
+checkBackup()
+
 while True:
     
     try:
@@ -321,6 +343,12 @@ while True:
     # Sending Messages 
         
     # Successful messages
+
+    # Is backup done
+    if int((lastid)[0]) != message_id and backupSuccess == 'N':
+        message = "Backup has not run, check it out"
+        send()
+        writeLog()
 
     # Is my PC Up
     if text == pcup and int((lastid)[0]) != message_id and userid in whitelist and chatid == botchat:
