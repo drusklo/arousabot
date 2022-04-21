@@ -81,8 +81,10 @@ def setupdb():
     command = '/test'
     db = sqlite3.connect(path+'/arousabot'+env+'.db')
     cursor = db.cursor()
-    cursor.execute('CREATE TABLE "messages" ("messageid"	INTEGER NOT NULL,"message"	TEXT,"command"	INTEGER,"user"	TEXT NOT NULL,"date"	TEXT NOT NULL,PRIMARY KEY("messageid"))')
+    cursor.execute('CREATE TABLE "messages" ("messageid"	INTEGER NOT NULL,"message"  TEXT,"command"	INTEGER,"user"	TEXT NOT NULL,"date"	TEXT NOT NULL,PRIMARY KEY("messageid"))')
     cursor.execute('INSERT INTO messages(messageid, message, command, user, date) VALUES(?, ?, ?, ?, datetime())',(messageid, message, command, user, ))
+    db.commit()
+    cursor.execute('CREATE TABLE "backup" ("date"	TEXT NOT NULL,"backupDone"  TEXT NOT NULL)')
     db.commit()
 
 # Check if the DB exists
@@ -215,6 +217,19 @@ def checkBackup():
 
 checkBackup()
 
+def backupDB():
+    cursor.execute('INSERT INTO backup(date, backupDone) VALUES(datetime(),?)',( backupSuccess ))
+    db.commit()
+
+backupDB()
+
+def getBackup():
+    global backupId
+    cursor.execute('SELECT backupDone FROM backup order by date desc limit 1')
+    backupId = cursor.fetchone()
+
+getBackup()
+
 while True:
     
     try:
@@ -345,7 +360,8 @@ while True:
     # Successful messages
 
     # Is backup done
-    if int((lastid)[0]) != message_id and backupSuccess == 'N':
+    if backupSuccess == 'N' and backupId == 'N':
+        backupNotification = True
         message = "Backup has not run, check it out"
         send()
         writeLog()
