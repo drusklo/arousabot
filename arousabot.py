@@ -202,7 +202,7 @@ def checkBackup():
     url = 'http://192.168.42.5:8080/data.json'
     new_request = requests.get(url)
     json_data = new_request.json()
-    backup = json_data[0]['Backup']
+    backup = json_data[0]['backup0']['backup']
     dt = datetime.now()
     currentDate= dt.strftime('%Y-%m-%d %H:%M')
     print(currentDate)
