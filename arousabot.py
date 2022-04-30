@@ -228,7 +228,7 @@ def getBackup():
     cursor.execute('SELECT backupDone FROM backup order by date desc limit 1')
     backupId = cursor.fetchone()
 
-getBackup()
+#getBackup()
 
 while True:
     
