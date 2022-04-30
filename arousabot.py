@@ -221,7 +221,7 @@ def backupDB():
     cursor.execute('INSERT INTO backup(date, backupDone) VALUES(datetime(),?)',( backupSuccess ))
     db.commit()
 
-backupDB()
+#backupDB()
 
 def getBackup():
     global backupId
